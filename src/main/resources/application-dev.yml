@@ -29,13 +29,3 @@ mybatis:
   type-aliases-package: com.zzx.model
   mapper-locations: mapper/*.xml
 
-#静态资源对外暴露的访问路径
-file:
-  staticAccessPath: /file/**
-  #文件上传目录
-  uploadFolder: E:\\file
-
-# 用户默认网盘容量大小 字节 默认2GB
-user:
-  netdisk:
-    size: 2147483648

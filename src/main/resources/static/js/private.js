@@ -85,10 +85,6 @@ $(function ()
         });
     });
 
-    $("#netdisk").click(function ()
-    {
-        window.location.href = '/netdisk.do';
-    });
 
     $("#person").click(function ()
     {

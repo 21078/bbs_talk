@@ -56,19 +56,3 @@ CREATE TABLE `user` (
 -- ----------------------------
 INSERT INTO `user`(`uid`, `uname`, `upwd`, `ustate`, `ucreatetime`, `level`) VALUES (1, 'admin', 'e10adc3949ba59abbe56e057f20f883e', 1, '2020-08-12 10:57:45', 0);
 
--- ----------------------------
--- Table structure for fileupload
--- ----------------------------
-
-DROP TABLE IF EXISTS `fileupload`;
-
-CREATE TABLE `fileupload` (
-  `fileId` int(11) NOT NULL AUTO_INCREMENT COMMENT '文件唯一标识',
-  `fileName` varchar(30) NOT NULL COMMENT '文件名',
-  `filePath` varchar(100) NOT NULL COMMENT '文件路径',
-  `fileSize` bigint(20) NOT NULL COMMENT '文件大小',
-  `uploadTime` datetime NOT NULL COMMENT '上传时间',
-  `state` int(11) NOT NULL COMMENT '文件状态',
-  `uid` int(11) NOT NULL COMMENT '用户id',
-  PRIMARY KEY (`fileId`)
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC;
