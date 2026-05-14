@@ -1,7 +1,6 @@
 package com.zzx.service;
 
 import com.zzx.exception.MessageException;
-import com.zzx.model.Invitecode;
 import com.zzx.model.User;
 
 import java.util.List;
@@ -12,10 +11,9 @@ public interface UserService {
      * 注册
      *
      * @param user
-     * @param invitecode
      * @throws MessageException
      */
-    void register(User user, Invitecode invitecode) throws MessageException;
+    void register(User user) throws MessageException;
 
     /**
      * 登录

@@ -35,8 +35,6 @@ $(function ()
         var uname = $("#registerUname").val();
         var upwd = $("#registerUpwd").val();
         var confirmPwd = $("#registerconfirmUpwd").val();
-        var inviteCode = $("#inviteCode").val();
-        var yzm = $("#registerYzm").val();
 
         var flag = true;
 
@@ -64,26 +62,11 @@ $(function ()
         else
             $("#registerconfirmUpwd+span").html("").css("background-color", "#EEEEEE");
 
-        if (inviteCode == "")
-        {
-            $("#inviteCode+span").html("X").css("background-color", "red");
-            flag = false;
-        }
-        else
-            $("#inviteCode+span").html("").css("background-color", "#EEEEEE");
-
-        if (yzm == "")
-        {
-            $("#registerYzm+span").html("X").css("background-color", "red");
-            flag = false;
-        }
-        else
-            $("#registerYzm+span").html("").css("background-color", "#EEEEEE");
 
 
         if (flag)
         {
-            var data = {"uname": uname, "upwd": upwd, "icode": inviteCode, "yzm": yzm};
+            var data = {"uname": uname, "upwd": upwd};
             $.post("/register.do", data, function (data)
             {
                 alert(data);
@@ -92,11 +75,6 @@ $(function ()
             });
         }
     });
-    $(".switchCode").click(function ()
-    {
-        alert("瞎子上什么论坛")
-        $(".yzmImg").attr("src", "/yzm.do?c=" + new Date().getMilliseconds());
-    })
     $("#logouot").click(function ()
     {
         $.get("/logout.do", {}, function (data)
@@ -163,14 +141,6 @@ $(function ()
                 location.reload()
         })
     });
-    $("#generateCode").click(function ()
-    {
-        $.get("/generateCode.do", function (data)
-        {
-            var txt = "<tr><td>" + data.icode + "</td><td>" + new Date(data.icreatetime).format("yyyy-MM-dd hh:mm:ss") + "</td><td>未激活</td><td></td><td><a href='/deleteCode/" + data.icode + "'>删除</a></td></tr>";
-            $("#codeList").append(txt);
-        }, "json");
-    });
 
     $("#updatePwd").click(function ()
     {
@@ -218,13 +188,11 @@ function login()
 {
     var uname = $("#loginUname").val();
     var upwd = $("#loginUpwd").val();
-    var yzm = $("#loginYzm").val();
-
-    if (uname == "" || upwd == "" || yzm == "")
+    if (uname == "" || upwd == "")
         return;
     else
     {
-        var data = {"uname": uname, "upwd": upwd, "yzm": yzm};
+        var data = {"uname": uname, "upwd": upwd};
         $.post("/login.do", data, function (data)
         {
             alert(data);
@@ -232,8 +200,7 @@ function login()
                 location.reload();
             else
             {
-                $(".yzmImg").attr("src", "/yzm.do?c=" + new Date().getMilliseconds());
-                $("#loginYzm").val("");
+                // 登录失败
             }
         });
     }

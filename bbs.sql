@@ -1,19 +1,7 @@
-
+CREATE DATABASE bbs CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE bbs;
 SET FOREIGN_KEY_CHECKS=0;
 
--- ----------------------------
--- Table structure for invitecode
--- ----------------------------
-DROP TABLE IF EXISTS `invitecode`;
-CREATE TABLE `invitecode` (
-  `icode` varchar(32) NOT NULL,
-  `icreatetime` datetime NOT NULL,
-  `istate` int(11) NOT NULL,
-  `uid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`icode`),
-  KEY `uid` (`uid`),
-  CONSTRAINT `invitecode_ibfk_1` FOREIGN KEY (`uid`) REFERENCES `user` (`uid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for post
