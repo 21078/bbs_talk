@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
@@ -30,7 +29,7 @@ public class UserController {
         }
 
         // 直接进行注册流程
-        user.setUpwd(DigestUtils.md5DigestAsHex(user.getUpwd().getBytes()));
+        // 密码明文存储，无需加密
         user.setLevel(1);
         user.setUcreatetime(new Date());
         user.setUstate(1);
@@ -49,7 +48,7 @@ public class UserController {
                         HttpServletRequest request, HttpServletResponse response) {
 
         // 直接进行登录流程
-        user.setUpwd(DigestUtils.md5DigestAsHex(user.getUpwd().getBytes()));
+        // 密码明文存储，无需加密
 
         user = userService.login(user);
         if (null != user) {
@@ -119,8 +118,7 @@ public class UserController {
             return "error";
         }
         try {
-            userService.updatePassword(user.getUname(), DigestUtils.md5DigestAsHex(oldPwd.getBytes()),
-                    DigestUtils.md5DigestAsHex(newPwd.getBytes()));
+            userService.updatePassword(user.getUname(), oldPwd, newPwd);
             session.removeAttribute("user");
         } catch (MessageException e) {
             model.addAttribute("message", e.getMessage());
