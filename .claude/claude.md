@@ -4,6 +4,20 @@
 
 这是一个基于Spring Boot + MyBatis的简单BBS（Bulletin Board System）论坛系统，实现了用户注册登录、发帖、回复等基本功能。
 
+## 阅读提醒：每次后续更新后，请务必更新claude.md文件，以便下一次开发阅读。
+## 每次更新后端代码后，务必编写注释参考以下
+```java
+    /**
+     * 保存帖子
+     * @param post 帖子对象
+     * @return void
+     */
+    @Override
+    public void save(Post post) {
+        postMapper.save(post);
+    }
+```
+
 ## 技术架构
 
 ### 后端技术栈
