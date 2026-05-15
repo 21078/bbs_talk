@@ -13,6 +13,9 @@ public class User {
      * 0管理员 1普通用户
      */
     private Integer level;
+    private String phone;
+    private String career;
+    private String address;
     private List<Post> postList;
 
     public Integer getUid() {
@@ -63,6 +66,30 @@ public class User {
         this.level = level;
     }
 
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getCareer() {
+        return career;
+    }
+
+    public void setCareer(String career) {
+        this.career = career;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -72,6 +99,9 @@ public class User {
                 ", ustate=" + ustate +
                 ", ucreatetime=" + ucreatetime +
                 ", level=" + level +
+                ", phone='" + phone + '\'' +
+                ", career='" + career + '\'' +
+                ", address='" + address + '\'' +
                 '}';
     }
 }

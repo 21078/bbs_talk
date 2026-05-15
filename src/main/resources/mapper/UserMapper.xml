@@ -7,26 +7,26 @@
 
     <insert id="save" parameterType="User">
         INSERT INTO user
-        VALUES (null,#{uname},#{upwd},#{ustate},#{ucreatetime},#{level});
+        VALUES (null,#{uname},#{upwd},#{ustate},#{ucreatetime},#{level},#{phone},#{career},#{address});
     </insert>
 
 
     <select id="findUserByUname" parameterType="User" resultType="User">
 
-        SELECT uid,uname,upwd,ustate,ucreatetime,level
+        SELECT uid,uname,upwd,ustate,ucreatetime,level,phone,career,address
         FROM user
         WHERE uname=#{uname}
     </select>
 
 
     <select id="findUserByUnameAndUpwd" resultType="User" parameterType="User">
-        SELECT uid,uname,upwd,ustate,ucreatetime,level
+        SELECT uid,uname,upwd,ustate,ucreatetime,level,phone,career,address
         FROM user
         WHERE uname=#{uname} and upwd=#{upwd}
     </select>
 
     <select id="findAllUser" resultType="User">
-        SELECT uid,uname,ustate,ucreatetime,level
+        SELECT uid,uname,ustate,ucreatetime,level,phone,career,address
         FROM user
     </select>
 
@@ -39,6 +39,15 @@
             <if test="ustate!=null">
                 ustate = #{ustate},
             </if>
+            <if test="phone!=null">
+                phone = #{phone},
+            </if>
+            <if test="career!=null">
+                career = #{career},
+            </if>
+            <if test="address!=null">
+                address = #{address},
+            </if>
             <!-- <if test="level!=null">
                 level = #{level},
             </if> -->
@@ -47,7 +56,7 @@
     </update>
 
     <select id="findUserByUid" parameterType="Integer" resultType="User">
-        SELECT uid,uname,ustate,ucreatetime,level
+        SELECT uid,uname,ustate,ucreatetime,level,phone,career,address
         FROM user
         WHERE uid = ${value}
     </select>

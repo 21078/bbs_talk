@@ -63,6 +63,9 @@ src/main/java/com/zzx/
 - `ustate`: 用户状态 (1正常, 0禁用)
 - `ucreatetime`: 创建时间
 - `level`: 用户级别 (0管理员, 1普通用户)
+- `phone`: 联系电话 (可选)
+- `career`: 职业 (可选)
+- `address`: 工作地址 (可选)
 
 ### 帖子表 (post)
 - `pid`: 帖子ID (主键)
@@ -86,6 +89,7 @@ src/main/java/com/zzx/
 - 用户登录 (login.do)
 - 用户退出 (logout.do)
 - 密码修改 (updatePassword.do)
+- 个人信息更新 (updateProfile.do)
 - 用户禁言/解禁 (ban/unban)
 - 个人信息页面 (person.do)
 
@@ -152,6 +156,7 @@ src/main/java/com/zzx/
 - `POST /login.do` - 用户登录
 - `GET /logout.do` - 用户退出
 - `POST /updatePassword.do` - 修改密码
+- `POST /updateProfile.do` - 更新个人信息
 - `GET /person.do` - 个人信息页面
 
 ### 管理员相关

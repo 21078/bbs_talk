@@ -54,4 +54,9 @@ public interface UserService {
      * 更改用户密码
      */
     void updatePassword(String uname, String oldPwd, String newPwd) throws MessageException;
+
+    /**
+     * 更新用户信息
+     */
+    void updateUser(User user);
 }

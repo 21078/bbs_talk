@@ -47,6 +47,9 @@ CREATE TABLE `user` (
   `ustate` int(11) NOT NULL,
   `ucreatetime` datetime NOT NULL,
   `level` int(11) NOT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `career` varchar(50) DEFAULT NULL,
+  `address` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`uid`),
   UNIQUE KEY `unique` (`uname`)
 ) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8;
@@ -54,5 +57,5 @@ CREATE TABLE `user` (
 -- ----------------------------
 -- user record
 -- ----------------------------
-INSERT INTO `user`(`uid`, `uname`, `upwd`, `ustate`, `ucreatetime`, `level`) VALUES (1, 'admin', '123456', 1, '2020-08-12 10:57:45', 0);
+INSERT INTO `user`(`uid`, `uname`, `upwd`, `ustate`, `ucreatetime`, `level`, `phone`, `career`, `address`) VALUES (1, 'admin', '123456', 1, '2020-08-12 10:57:45', 0, NULL, NULL, NULL);
 

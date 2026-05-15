@@ -128,4 +128,29 @@ public class UserController {
 
     }
 
+    @PostMapping("/updateProfile.do")
+    public String updateProfile(Model model, HttpSession session,
+                                @RequestParam(required = false) String phone,
+                                @RequestParam(required = false) String career,
+                                @RequestParam(required = false) String address) {
+
+        User user = (User)session.getAttribute("user");
+        if (user == null)
+            return "redirect:/";
+
+        user.setPhone(phone);
+        user.setCareer(career);
+        user.setAddress(address);
+
+        try {
+            userService.updateUser(user);
+            // 更新session中的用户信息
+            session.setAttribute("user", user);
+        } catch (Exception e) {
+            model.addAttribute("message", "更新失败");
+            return "error";
+        }
+        return "redirect:/person.do";
+    }
+
 }
