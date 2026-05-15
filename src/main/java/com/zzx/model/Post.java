@@ -2,15 +2,19 @@ package com.zzx.model;
 
 import java.util.Date;
 
+/**
+ * 帖子实体类
+ * 表示论坛中的帖子信息
+ */
 public class Post {
 
-    private Long pid;
-    private String ptitle;
-    private String pbody;
-    private Long replyCount;    //帖子回复数
-    private Date psendtime;
-    private User user;
-    private Date lastreplytime;//最后回复时间
+    private Long pid; // 帖子ID，主键
+    private String ptitle; // 帖子标题
+    private String pbody; // 帖子内容
+    private Long replyCount; // 帖子回复数
+    private Date psendtime; // 发帖时间
+    private User user; // 发帖用户
+    private Date lastreplytime; // 最后回复时间
 
     public Date getLastreplytime() {
         return lastreplytime;

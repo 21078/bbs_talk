@@ -5,6 +5,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 
+/**
+ * Spring MVC配置类
+ * 配置Web应用程序的MVC相关设置
+ */
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 

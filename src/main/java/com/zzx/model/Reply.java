@@ -2,12 +2,16 @@ package com.zzx.model;
 
 import java.util.Date;
 
+/**
+ * 回复实体类
+ * 表示对帖子的回复信息
+ */
 public class Reply {
-    private User user;
-    private Post post;
-    private String replymessage;
-    private Date replytime;
-    private Long rid;
+    private User user; // 回复用户
+    private Post post; // 所属帖子
+    private String replymessage; // 回复内容
+    private Date replytime; // 回复时间
+    private Long rid; // 回复ID，主键
 
     public Long getRid() {
         return rid;

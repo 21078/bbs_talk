@@ -13,6 +13,10 @@ import java.util.List;
 
 @Transactional
 @Service
+/**
+ * 用户服务实现类
+ * 实现用户相关的业务逻辑，包括注册、登录、权限管理等
+ */
 public class UserServiceImpl implements UserService {
 
 
@@ -20,6 +24,13 @@ public class UserServiceImpl implements UserService {
     private UserMapper userMapper;
 
 
+    /**
+     * 用户注册
+     * 将新用户信息保存到数据库
+     *
+     * @param user 用户对象
+     * @throws MessageException 当用户名已存在时抛出异常
+     */
     @Override
     public void register(User user) throws MessageException {
         try {
@@ -29,34 +40,75 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * 用户登录
+     * 根据用户名和密码验证用户身份
+     *
+     * @param user 用户对象，包含登录信息
+     * @return 登录成功的用户对象，失败返回null
+     */
     @Override
     public User login(User user) {
         return userMapper.findUserByUnameAndUpwd(user);
     }
 
+    /**
+     * 查询所有用户
+     * 获取系统中所有用户的信息
+     *
+     * @return 用户列表
+     */
     @Override
     public List<User> findAllUser() {
         return userMapper.findAllUser();
     }
 
+    /**
+     * 禁言用户
+     * 将指定用户设置为禁言状态
+     *
+     * @param user 用户对象
+     */
     @Override
     public void banUser(User user) {
-        user.setUstate(0);
+        user.setUstate(0); // 0表示禁言状态
         userMapper.updateUser(user);
     }
 
+    /**
+     * 解禁用户
+     * 将指定用户解除禁言状态
+     *
+     * @param user 用户对象
+     */
     @Override
     public void unbanUser(User user) {
-        user.setUstate(1);
+        user.setUstate(1); // 1表示正常状态
         userMapper.updateUser(user);
     }
 
 
+    /**
+     * 根据用户ID查询用户
+     * 通过用户ID获取用户详细信息
+     *
+     * @param uid 用户ID
+     * @return 用户对象
+     */
     @Override
     public User findUserByUid(Integer uid) {
         return userMapper.findUserByUid(uid);
     }
 
+    /**
+     * 修改用户密码
+     * 验证原密码正确后更新为新密码
+     *
+     * @param uname 用户名
+     * @param oldPwd 原密码
+     * @param newPwd 新密码
+     * @throws MessageException 当原密码错误时抛出异常
+     */
     @Override
     public void updatePassword(String uname, String oldPwd, String newPwd) throws MessageException {
 
@@ -72,6 +124,12 @@ public class UserServiceImpl implements UserService {
         userMapper.updateUserPwd(user);
     }
 
+    /**
+     * 更新用户信息
+     * 修改用户的个人信息
+     *
+     * @param user 用户对象，包含更新的信息
+     */
     @Override
     public void updateUser(User user) {
         userMapper.updateUser(user);

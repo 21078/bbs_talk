@@ -12,6 +12,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
 
+/**
+ * 回复控制器
+ * 处理回复相关的HTTP请求，主要提供删除回复功能
+ */
 @Controller
 public class ReplyController {
 
@@ -19,12 +23,20 @@ public class ReplyController {
     @Autowired
     private ReplyService replyService;
 
-
+    /**
+     * 删除回复接口（管理员权限）
+     * 管理员可以删除任意回复
+     *
+     * @param rid 回复ID
+     * @param session HTTP会话对象
+     * @return 删除结果消息
+     */
     @RequestMapping(value = "/deleteReply/{rid}", method = RequestMethod.GET)
     @ResponseBody
     public String deleteReply(@PathVariable Long rid, HttpSession session) {
 
         User user = (User)session.getAttribute("user");
+        // 检查用户是否为管理员
         if (null != user && user.getLevel() == 0) {
             replyService.deleteReplyRid(rid);
             return "删除成功";

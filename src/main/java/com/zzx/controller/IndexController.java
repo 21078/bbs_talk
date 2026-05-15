@@ -28,11 +28,22 @@ public class IndexController {
     @Autowired
     private UserService userService;
 
-
+    /**
+     * 首页控制器方法
+     * 显示帖子列表，支持分页功能
+     *
+     * @param session HTTP会话对象
+     * @param model Spring MVC模型对象，用于向视图传递数据
+     * @param page 页码参数，可选参数，默认为第一页
+     * @return 返回首页视图名称
+     */
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String index(HttpSession session, Model model, @RequestParam(value = "page", required = false) Long page) {
+        // 创建分页参数Map
         Map<String, Long> map = new HashMap<>();
+        // 设置起始页，如果page为null则从第0页开始，否则从page-1页开始
         map.put("startPage", page == null ? 0 : page - 1);
+        // 调用服务层方法获取分页帖子数据并添加到模型中
         model.addAttribute("page", postService.findPostByPage(map));
 
         return "index";
