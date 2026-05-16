@@ -48,7 +48,7 @@ $(function ()
 
         if ((upwd.length > 16) || (upwd.length < 6))
         {
-            $("#registerUpwd+span").html("X").css("background-color", "red");
+            $("#registerUpwd+span").html("密码长度需6-16位").css("background-color", "red");
             flag = false;
         }
         else
@@ -73,6 +73,16 @@ $(function ()
                 if (data == "注册成功")
                     location.reload()
             });
+        }
+        else
+        {
+            if (uname.length > 16) {
+                alert("用户名不能超过16个字符");
+            } else if ((upwd.length > 16) || (upwd.length < 6)) {
+                alert("密码长度必须在6-16位之间");
+            } else if (upwd != confirmPwd) {
+                alert("两次输入的密码不一致");
+            }
         }
     });
     $("#logouot").click(function ()
