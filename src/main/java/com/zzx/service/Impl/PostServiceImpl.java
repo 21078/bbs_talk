@@ -5,6 +5,7 @@ import com.zzx.mapper.ReplyMapper;
 import com.zzx.model.Page;
 import com.zzx.model.Post;
 import com.zzx.service.PostService;
+import com.zzx.service.FavoriteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,8 @@ public class PostServiceImpl implements PostService {
     private PostMapper postMapper;
     @Autowired
     private ReplyMapper replyMapper;
+    @Autowired
+    private FavoriteService favoriteService;
 
     /**
      * 保存帖子
@@ -72,7 +75,7 @@ public class PostServiceImpl implements PostService {
 
     /**
      * 删除帖子
-     * 删除指定帖子及其所有回复
+     * 删除指定帖子及其所有回复和收藏
      *
      * @param pid 帖子ID
      */
@@ -80,6 +83,8 @@ public class PostServiceImpl implements PostService {
     public void deletePost(Long pid) {
         // 先删除该帖子的所有回复
         replyMapper.deleteReply(pid);
+        // 删除该帖子的所有收藏
+        favoriteService.deleteByPostId(pid);
         // 再删除帖子本身
         postMapper.deletePost(pid);
     }

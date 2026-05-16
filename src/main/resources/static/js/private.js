@@ -172,10 +172,30 @@ function banUser(uid)
 
 function unbanUser(uid)
 {
-    $.get("/unban/" + uid, function (data)
+    $.get("/ban/" + uid, function (data)
     {
         alert(data)
-        if (data == "解禁成功")
+        if (data == "禁言成功")
+            location.reload();
+    });
+}
+
+function addFavorite(pid)
+{
+    $.get("/favorite/add/" + pid, function (data)
+    {
+        alert(data);
+        if (data == "添加收藏成功" || data.indexOf("成功") > -1)
+            location.reload();
+    });
+}
+
+function removeFavorite(pid)
+{
+    $.get("/favorite/remove/" + pid, function (data)
+    {
+        alert(data);
+        if (data == "取消收藏成功" || data.indexOf("成功") > -1)
             location.reload();
     });
 }

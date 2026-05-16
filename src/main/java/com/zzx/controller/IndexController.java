@@ -1,6 +1,11 @@
 package com.zzx.controller;
 
 
+import com.zzx.model.Favorite;
+import com.zzx.model.Page;
+import com.zzx.model.Post;
+import com.zzx.model.User;
+import com.zzx.service.FavoriteService;
 import com.zzx.service.PostService;
 import com.zzx.service.UserService;
 
@@ -28,6 +33,9 @@ public class IndexController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private FavoriteService favoriteService;
+
     /**
      * 首页控制器方法
      * 显示帖子列表，支持分页功能
@@ -43,8 +51,19 @@ public class IndexController {
         Map<String, Long> map = new HashMap<>();
         // 设置起始页，如果page为null则从第0页开始，否则从page-1页开始
         map.put("startPage", page == null ? 0 : page - 1);
-        // 调用服务层方法获取分页帖子数据并添加到模型中
-        model.addAttribute("page", postService.findPostByPage(map));
+        // 调用服务层方法获取分页帖子数据
+        Page<Post> pageResult = postService.findPostByPage(map);
+
+        // 检查当前用户是否已收藏每个帖子
+        User user = (User) session.getAttribute("user");
+        if (user != null && pageResult.getModelList() != null) {
+            for (Post post : pageResult.getModelList()) {
+                Favorite existing = favoriteService.findByUserAndPost(user.getUid(), post.getPid());
+                post.setIsFavorited(existing != null);
+            }
+        }
+
+        model.addAttribute("page", pageResult);
 
         return "index";
     }

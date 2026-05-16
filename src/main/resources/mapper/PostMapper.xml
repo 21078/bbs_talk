@@ -18,20 +18,25 @@
         <result property="lastreplytime" column="lastreplytime"/>
         <result property="user.uid" column="uid"/>
         <result property="user.uname" column="uname"/>
+        <result property="favoriteCount" column="favorite_count"/>
     </resultMap>
 
 
     <select id="findAllPost" resultMap="PostAndUser">
-        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname
+        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,COUNT(f.fid) as favorite_count
         FROM post p LEFT JOIN user u on p.uid = u.uid
+        LEFT JOIN favorite f on p.pid = f.pid
+        GROUP BY p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname
         ORDER BY lastreplytime DESC
     </select>
 
 
     <select id="findPostById" resultMap="PostAndUser" parameterType="Long">
-        SELECT pid,ptitle,pbody,psendtime,u.uid,u.uname
+        SELECT p.pid,p.ptitle,p.pbody,p.psendtime,u.uid,u.uname,COUNT(f.fid) as favorite_count
         FROM post p LEFT JOIN user u on p.uid = u.uid
-        WHERE pid=#{value}
+        LEFT JOIN favorite f on p.pid = f.pid
+        WHERE p.pid=#{value}
+        GROUP BY p.pid,p.ptitle,p.pbody,p.psendtime,u.uid,u.uname
     </select>
 
     <update id="updatePostLastReplyTime" parameterType="Post">
@@ -51,8 +56,10 @@
     </parameterMap>
 
     <select id="findPostByPage" parameterMap="StartPageAndshowPage" resultMap="PostAndUser">
-        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname
+        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,COUNT(f.fid) as favorite_count
         FROM post p LEFT JOIN user u on p.uid = u.uid
+        LEFT JOIN favorite f on p.pid = f.pid
+        GROUP BY p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname
         ORDER BY lastreplytime DESC
         LIMIT #{startPage},#{showPage}
     </select>

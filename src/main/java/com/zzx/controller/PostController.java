@@ -1,12 +1,14 @@
 package com.zzx.controller;
 
 
+import com.zzx.model.Favorite;
 import com.zzx.model.Post;
 
 import com.zzx.model.Reply;
 import com.zzx.model.User;
 import com.zzx.service.PostService;
 import com.zzx.service.ReplyService;
+import com.zzx.service.FavoriteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,6 +32,9 @@ public class PostController {
 
     @Autowired
     private ReplyService replyService;
+
+    @Autowired
+    private FavoriteService favoriteService;
 
     /**
      * 发布帖子接口
@@ -74,13 +79,25 @@ public class PostController {
      * @param pid 帖子ID
      * @param page 页码参数
      * @param model Spring MVC模型对象
+     * @param session HTTP会话对象
      * @return 帖子详情页面视图
      */
     @RequestMapping(value = {"/post/{pid}.html"}, method = RequestMethod.GET)
-    public String replyPage(@PathVariable Long pid, @RequestParam(value = "page", required = false) Long page, Model model) {
+    public String replyPage(@PathVariable Long pid, @RequestParam(value = "page", required = false) Long page, Model model, HttpSession session) {
 
         // 根据pid查询帖子信息
-        model.addAttribute("post", postService.findPostByPid(pid));
+        Post post = postService.findPostByPid(pid);
+
+        // 检查当前用户是否已收藏该帖子
+        User user = (User) session.getAttribute("user");
+        if (user != null) {
+            Favorite existing = favoriteService.findByUserAndPost(user.getUid(), pid);
+            post.setIsFavorited(existing != null);
+        } else {
+            post.setIsFavorited(false);
+        }
+
+        model.addAttribute("post", post);
 
         // 根据pid分页查询回复
         Map<String, Long> map = new HashMap<>();

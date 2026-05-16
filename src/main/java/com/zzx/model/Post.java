@@ -15,6 +15,8 @@ public class Post {
     private Date psendtime; // 发帖时间
     private User user; // 发帖用户
     private Date lastreplytime; // 最后回复时间
+    private Long favoriteCount; // 帖子收藏数
+    private Boolean isFavorited; // 当前用户是否已收藏此帖
 
     public Date getLastreplytime() {
         return lastreplytime;
@@ -70,5 +72,21 @@ public class Post {
 
     public void setReplyCount(Long replyCount) {
         this.replyCount = replyCount;
+    }
+
+    public Long getFavoriteCount() {
+        return favoriteCount;
+    }
+
+    public void setFavoriteCount(Long favoriteCount) {
+        this.favoriteCount = favoriteCount;
+    }
+
+    public Boolean getIsFavorited() {
+        return isFavorited;
+    }
+
+    public void setIsFavorited(Boolean isFavorited) {
+        this.isFavorited = isFavorited;
     }
 }

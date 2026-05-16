@@ -4,7 +4,7 @@
 
 这是一个基于Spring Boot + MyBatis的简单BBS（Bulletin Board System）论坛系统，实现了用户注册登录、发帖、回复等基本功能。
 
-## 阅读提醒：每次后续更新后，请务必更新claude.md文件，以便下一次开发阅读。
+## 阅读提醒：由于前后端代码在一个项目（前端在static目录），每次后续更新要同时修改前后端，并且结束后请务必更新claude.md文件，以便下一次开发阅读。
 ## 每次更新后端代码后，务必编写注释参考以下
 ```java
     /**
@@ -96,6 +96,12 @@ src/main/java/com/zzx/
 - `replymessage`: 回复内容
 - `replytime`: 回复时间
 
+### 收藏表 (favorite)
+- `fid`: 收藏ID (主键)
+- `uid`: 用户ID (外键)
+- `pid`: 帖子ID (外键)
+- `favtime`: 收藏时间
+
 ## 主要功能模块
 
 ### 1. 用户管理
@@ -112,13 +118,20 @@ src/main/java/com/zzx/
 - 发帖功能
 - 帖子分页浏览
 - 帖子详情查看
+- 帖子收藏数统计
 
 ### 3. 回复管理
 - 帖子回复功能
 - 回复时间排序
 - 回复数量统计
 
-### 4. 管理员功能
+### 4. 收藏管理
+- 添加收藏 (favorite/add/{pid})
+- 取消收藏 (favorite/remove/{pid})
+- 查看收藏列表 (favorite/list)
+- 收藏状态实时显示
+
+### 5. 管理员功能
 - 用户管理（禁言/解禁）
 - 系统监控
 
@@ -180,6 +193,11 @@ src/main/java/com/zzx/
 ### 帖子相关
 - `GET /` - 首页帖子列表
 - 分页参数: `page` (页码)
+
+### 收藏相关
+- `GET /favorite/add/{pid}` - 添加收藏
+- `GET /favorite/remove/{pid}` - 取消收藏
+- `GET /favorite/list` - 查看收藏列表
 
 ## 后续开发建议
 

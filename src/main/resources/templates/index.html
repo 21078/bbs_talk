@@ -44,9 +44,24 @@
                         <span class="badge" th:text="|回复数:${post.replyCount}|">回复数:42</span>
                     </div>
                     <div class="col-xs-1">
+                        <span class="badge" th:text="|收藏:${post.favoriteCount}|">收藏:0</span>
+                    </div>
+                    <div class="col-xs-1">
                         <a th:href="|/post/${post.pid}.html|">
                             <button type="button" class="btn btn-primary btn-xs">查看</button>
                         </a>
+                    </div>
+                    <div class="col-xs-1" th:if="${session.user!=null}">
+                        <button type="button" class="btn btn-warning btn-xs favorite-btn"
+                                th:if="${post.isFavorited==null or !post.isFavorited}"
+                                th:onclick="|addFavorite(${post.pid})|">
+                            <span class="glyphicon glyphicon-star-empty"></span> 收藏
+                        </button>
+                        <button type="button" class="btn btn-danger btn-xs favorite-btn favorited"
+                                th:if="${post.isFavorited!=null and post.isFavorited}"
+                                th:onclick="|removeFavorite(${post.pid})|">
+                            <span class="glyphicon glyphicon-star"></span> 已收藏
+                        </button>
                     </div>
                     <div class="col-xs-1" th:if="${session.user!=null}?(${session.user.uid == post.user.uid}?true:${session.user.level==0}):false">
                         <a th:href="|/delete/${post.pid}|">
