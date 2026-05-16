@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -144,5 +145,42 @@ public class PostServiceImpl implements PostService {
     @Override
     public void updatePostContent(Post post) {
         postMapper.updatePostContent(post);
+    }
+
+    /**
+     * 根据板块分页查询帖子
+     * @param map 分页参数
+     * @param category 板块名称
+     * @return Page<Post> 分页对象
+     */
+    @Override
+    public Page<Post> findPostByPageAndCategory(Map<String, Long> map, String category) {
+        Page<Post> page = new Page<>();
+        // 设置每页显示数量
+        map.put("showPage", page.getShowCount().longValue());
+        // 设置当前页码
+        page.setCurrentPage((int)(map.get("startPage") + 1));
+        // 计算起始位置
+        map.replace("startPage", map.get("startPage") * page.getShowCount());
+
+        // 添加板块参数
+        Map<String, Object> queryMap = new HashMap<>();
+        queryMap.putAll(map);
+        queryMap.put("category", category);
+
+        // 查询当前页的帖子列表
+        page.setModelList(postMapper.findPostByPageAndCategory(queryMap));
+
+        // 获取该板块的总帖子数
+        Integer postCount = postMapper.getPostCountByCategory(category);
+
+        // 计算总页数
+        page.setPageTotal(postCount % page.getShowCount() == 0 ? postCount / page.getShowCount() : (postCount / page.getShowCount()) + 1);
+
+        // 查询每个帖子的回复数量
+        for (Post post : page.getModelList()) {
+            post.setReplyCount(replyMapper.getReplyCountByPid(post.getPid()));
+        }
+        return page;
     }
 }

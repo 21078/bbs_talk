@@ -76,4 +76,20 @@ public interface PostMapper {
      * @param post 帖子对象
      */
     void updatePostContent(Post post);
+
+    /**
+     * 根据板块分页查询帖子
+     *
+     * @param map 查询参数，包含分页和板块信息
+     * @return 帖子列表
+     */
+    List<Post> findPostByPageAndCategory(Map<String, Object> map);
+
+    /**
+     * 根据板块查询帖子数量
+     *
+     * @param category 板块名称
+     * @return 帖子数量
+     */
+    Integer getPostCountByCategory(String category);
 }

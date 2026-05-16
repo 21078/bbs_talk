@@ -70,6 +70,22 @@
         FROM post
     </select>
 
+    <select id="findPostByPageAndCategory" parameterType="Map" resultMap="PostAndUser">
+        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,COUNT(f.fid) as favorite_count,p.category
+        FROM post p LEFT JOIN user u on p.uid = u.uid
+        LEFT JOIN favorite f on p.pid = f.pid
+        WHERE p.category = #{category}
+        GROUP BY p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,p.category
+        ORDER BY lastreplytime DESC
+        LIMIT #{startPage},#{showPage}
+    </select>
+
+    <select id="getPostCountByCategory" parameterType="String" resultType="Integer" >
+        SELECT COUNT(1)
+        FROM post
+        WHERE category = #{value}
+    </select>
+
     <select id="findPostsByUserId" resultMap="PostAndUser" parameterType="Long">
         SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,COUNT(f.fid) as favorite_count,p.category
         FROM post p LEFT JOIN user u on p.uid = u.uid

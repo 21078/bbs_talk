@@ -58,4 +58,12 @@ public interface PostService {
      * @return void
      */
     void updatePostContent(Post post);
+
+    /**
+     * 根据板块分页查询帖子
+     * @param map 分页参数
+     * @param category 板块名称
+     * @return Page<Post> 分页对象
+     */
+    Page<Post> findPostByPageAndCategory(Map<String, Long> map, String category);
 }
