@@ -8,68 +8,68 @@ SET FOREIGN_KEY_CHECKS=0;
 -- ----------------------------
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
-  `uid` int(11) NOT NULL AUTO_INCREMENT,
-  `uname` varchar(32) NOT NULL,
-  `upwd` varchar(32) NOT NULL,
-  `ustate` int(11) NOT NULL,
-  `ucreatetime` datetime NOT NULL,
-  `level` int(11) NOT NULL,
-  `phone` varchar(20) DEFAULT NULL,
-  `career` TEXT DEFAULT NULL,
-  `address` varchar(500) DEFAULT NULL,
+  `uid` int(11) NOT NULL AUTO_INCREMENT COMMENT '用户ID',
+  `uname` varchar(32) NOT NULL COMMENT '用户名，唯一',
+  `upwd` varchar(32) NOT NULL COMMENT '密码，明文存储',
+  `ustate` int(11) NOT NULL COMMENT '用户状态：1正常，0禁用',
+  `ucreatetime` datetime NOT NULL COMMENT '创建时间',
+  `level` int(11) NOT NULL COMMENT '用户级别：0管理员，1普通用户',
+  `phone` varchar(20) DEFAULT NULL COMMENT '联系电话，可选',
+  `career` TEXT DEFAULT NULL COMMENT '职业，可选',
+  `address` varchar(500) DEFAULT NULL COMMENT '工作地址，可选',
   PRIMARY KEY (`uid`),
   UNIQUE KEY `unique` (`uname`)
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户表';
 
 -- ----------------------------
 -- Table structure for post
 -- ----------------------------
 DROP TABLE IF EXISTS `post`;
 CREATE TABLE `post` (
-  `pid` bigint(20) NOT NULL AUTO_INCREMENT,
-  `ptitle` varchar(100) NOT NULL,
-  `pbody` text NOT NULL,
-  `psendtime` datetime NOT NULL,
-  `lastreplytime` datetime NOT NULL,
-  `uid` int(11) NOT NULL,
-  `category` varchar(50) NOT NULL,
+  `pid` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '帖子ID',
+  `ptitle` varchar(100) NOT NULL COMMENT '帖子标题',
+  `pbody` text NOT NULL COMMENT '帖子内容',
+  `psendtime` datetime NOT NULL COMMENT '发帖时间',
+  `lastreplytime` datetime NOT NULL COMMENT '最后回复时间',
+  `uid` int(11) NOT NULL COMMENT '发帖用户ID',
+  `category` varchar(50) NOT NULL COMMENT '帖子板块',
   PRIMARY KEY (`pid`),
   KEY `uid` (`uid`)
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='帖子表';
 
 -- ----------------------------
 -- Table structure for reply
 -- ----------------------------
 DROP TABLE IF EXISTS `reply`;
 CREATE TABLE `reply` (
-  `pid` bigint(20) NOT NULL,
-  `uid` int(11) NOT NULL,
-  `replymessage` text NOT NULL,
-  `replytime` datetime NOT NULL,
-  `rid` bigint(20) NOT NULL AUTO_INCREMENT,
+  `rid` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '回复ID',
+  `pid` bigint(20) NOT NULL COMMENT '帖子ID',
+  `uid` int(11) NOT NULL COMMENT '回复用户ID',
+  `replymessage` text NOT NULL COMMENT '回复内容',
+  `replytime` datetime NOT NULL COMMENT '回复时间',
   PRIMARY KEY (`rid`),
   KEY `uid` (`uid`),
   KEY `pid` (`pid`)
-) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='回复表';
 
 -- ----------------------------
 -- Table structure for favorite
 -- ----------------------------
 DROP TABLE IF EXISTS `favorite`;
 CREATE TABLE `favorite` (
-  `fid` bigint(20) NOT NULL AUTO_INCREMENT,
-  `uid` int(11) NOT NULL,
-  `pid` bigint(20) NOT NULL,
-  `favtime` datetime NOT NULL,
+  `fid` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '收藏ID',
+  `uid` int(11) NOT NULL COMMENT '用户ID',
+  `pid` bigint(20) NOT NULL COMMENT '帖子ID',
+  `favtime` datetime NOT NULL COMMENT '收藏时间',
   PRIMARY KEY (`fid`),
-  UNIQUE KEY `unique_fav` (`uid`, `pid`),
+  UNIQUE KEY `unique_fav` (`uid`, `pid`) COMMENT '用户帖子收藏唯一约束',
   KEY `pid` (`pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='收藏表';
 
 -- ----------------------------
 -- 初始化数据 - user表
 -- ----------------------------
-INSERT INTO `user`(`uid`, `uname`, `upwd`, `ustate`, `ucreatetime`, `level`, `phone`, `career`, `address`) VALUES 
+INSERT INTO `user`(`uid`, `uname`, `upwd`, `ustate`, `ucreatetime`, `level`, `phone`, `career`, `address`) VALUES
 (1, 'admin', '123456', 1, '2020-08-12 10:57:45', 0, '13800138000', '系统管理员', '北京市海淀区'),
 (2, 'u1', '123456', 1, '2020-08-12 10:57:45', 1, '13800138001', '软件工程师', '北京市朝阳区'),
 (3, 'u2', '123456', 1, '2020-08-13 09:30:00', 1, '13800138002', '产品经理', '上海市浦东新区'),
