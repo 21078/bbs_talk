@@ -55,7 +55,25 @@ CREATE TABLE `user` (
 ) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
--- user record
+-- Table structure for favorite
+-- ----------------------------
+DROP TABLE IF EXISTS `favorite`;
+CREATE TABLE `favorite` (
+  `fid` bigint(20) NOT NULL AUTO_INCREMENT,
+  `uid` int(11) NOT NULL,
+  `pid` bigint(20) NOT NULL,
+  `favtime` datetime NOT NULL,
+  PRIMARY KEY (`fid`),
+  UNIQUE KEY `unique_fav` (`uid`, `pid`),
+  KEY `pid` (`pid`),
+  CONSTRAINT `favorite_ibfk_1` FOREIGN KEY (`uid`) REFERENCES `user` (`uid`),
+  CONSTRAINT `favorite_ibfk_2` FOREIGN KEY (`pid`) REFERENCES `post` (`pid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- 初始化数据
 -- ----------------------------
 INSERT INTO `user`(`uid`, `uname`, `upwd`, `ustate`, `ucreatetime`, `level`, `phone`, `career`, `address`) VALUES (1, 'admin', '123456', 1, '2020-08-12 10:57:45', 0, NULL, NULL, NULL);
+INSERT INTO `user`(`uid`, `uname`, `upwd`, `ustate`, `ucreatetime`, `level`, `phone`, `career`, `address`) VALUES (2, '1', '123456', 1, '2020-08-12 10:57:45', 1, NULL, NULL, NULL);
 
+INSERT INTO `post`(`pid`, `ptitle`, `pbody`, `psendtime`, `lastreplytime`, `uid`) VALUES (1, '测试帖子', '测试帖子内容', '2020-08-12 10:57:45', '2020-08-12 10:57:45', 1);
