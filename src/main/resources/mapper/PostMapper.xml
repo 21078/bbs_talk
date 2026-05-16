@@ -7,7 +7,7 @@
 
     <insert id="save" parameterType="Post">
         INSERT INTO post
-        VALUES (null,#{ptitle},#{pbody},#{psendtime},#{lastreplytime},#{user.uid})
+        VALUES (null,#{ptitle},#{pbody},#{psendtime},#{lastreplytime},#{user.uid},#{category})
     </insert>
 
     <resultMap type="Post" id="PostAndUser">
@@ -19,24 +19,25 @@
         <result property="user.uid" column="uid"/>
         <result property="user.uname" column="uname"/>
         <result property="favoriteCount" column="favorite_count"/>
+        <result property="category" column="category"/>
     </resultMap>
 
 
     <select id="findAllPost" resultMap="PostAndUser">
-        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,COUNT(f.fid) as favorite_count
+        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,COUNT(f.fid) as favorite_count,p.category
         FROM post p LEFT JOIN user u on p.uid = u.uid
         LEFT JOIN favorite f on p.pid = f.pid
-        GROUP BY p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname
+        GROUP BY p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,p.category
         ORDER BY lastreplytime DESC
     </select>
 
 
     <select id="findPostById" resultMap="PostAndUser" parameterType="Long">
-        SELECT p.pid,p.ptitle,p.pbody,p.psendtime,u.uid,u.uname,COUNT(f.fid) as favorite_count
+        SELECT p.pid,p.ptitle,p.pbody,p.psendtime,u.uid,u.uname,COUNT(f.fid) as favorite_count,p.category
         FROM post p LEFT JOIN user u on p.uid = u.uid
         LEFT JOIN favorite f on p.pid = f.pid
         WHERE p.pid=#{value}
-        GROUP BY p.pid,p.ptitle,p.pbody,p.psendtime,u.uid,u.uname
+        GROUP BY p.pid,p.ptitle,p.pbody,p.psendtime,u.uid,u.uname,p.category
     </select>
 
     <update id="updatePostLastReplyTime" parameterType="Post">
@@ -56,10 +57,10 @@
     </parameterMap>
 
     <select id="findPostByPage" parameterMap="StartPageAndshowPage" resultMap="PostAndUser">
-        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,COUNT(f.fid) as favorite_count
+        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,COUNT(f.fid) as favorite_count,p.category
         FROM post p LEFT JOIN user u on p.uid = u.uid
         LEFT JOIN favorite f on p.pid = f.pid
-        GROUP BY p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname
+        GROUP BY p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,p.category
         ORDER BY lastreplytime DESC
         LIMIT #{startPage},#{showPage}
     </select>
@@ -68,5 +69,20 @@
         SELECT COUNT(1)
         FROM post
     </select>
+
+    <select id="findPostsByUserId" resultMap="PostAndUser" parameterType="Long">
+        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,COUNT(f.fid) as favorite_count,p.category
+        FROM post p LEFT JOIN user u on p.uid = u.uid
+        LEFT JOIN favorite f on p.pid = f.pid
+        WHERE p.uid = #{value}
+        GROUP BY p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,p.category
+        ORDER BY psendtime DESC
+    </select>
+
+    <update id="updatePostContent" parameterType="Post">
+        UPDATE post
+        SET pbody = #{pbody}
+        WHERE pid = #{pid} AND uid = #{user.uid}
+    </update>
 
 </mapper>

@@ -44,4 +44,18 @@ public interface PostService {
      * @return Page<Post> 分页对象
      */
     Page<Post> findPostByPage(Map<String, Long> map);
+
+    /**
+     * 根据用户ID查询帖子
+     * @param uid 用户ID
+     * @return List<Post> 帖子列表
+     */
+    List<Post> findPostsByUserId(Long uid);
+
+    /**
+     * 更新帖子内容
+     * @param post 帖子对象
+     * @return void
+     */
+    void updatePostContent(Post post);
 }

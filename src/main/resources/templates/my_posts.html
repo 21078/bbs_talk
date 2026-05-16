@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <title>我的帖子</title>
+
+    <script th:src="@{js/jquery/2.0.0/jquery.min.js}" src="js/jquery/2.0.0/jquery.min.js"></script>
+    <link th:href="@{css/bootstrap/3.3.6/bootstrap.min.css}" href="css/bootstrap/3.3.6/bootstrap.min.css" rel="stylesheet"/>
+    <script th:src="@{js/bootstrap/3.3.6/bootstrap.min.js}" src="js/bootstrap/3.3.6/bootstrap.min.js"></script>
+
+    <script type="text/javascript" th:src="@{js/private.js}"></script>
+    <link th:href="@{css/tx.css}" rel="stylesheet"/>
+
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script type="text/javascript" th:src="@{js/canvas.js}"></script>
+
+<div class="container">
+    <div th:replace="head::header"></div>
+
+    <h3 class="text-center" style="margin: 20px 0;">我的帖子管理</h3>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                    <tr>
+                        <th>标题</th>
+                        <th>板块</th>
+                        <th>发布时间</th>
+                        <th>回复数</th>
+                        <th>收藏数</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="post:${myPosts}">
+                        <td th:text="${post.ptitle}">帖子标题</td>
+                        <td>
+                            <span th:switch="${post.category}">
+                                <span th:case="'娱乐'" class="label label-success" th:text="${post.category}">娱乐</span>
+                                <span th:case="'技术'" class="label label-primary" th:text="${post.category}">技术</span>
+                                <span th:case="'美食'" class="label label-warning" th:text="${post.category}">美食</span>
+                                <span th:case="'旅游'" class="label label-info" th:text="${post.category}">旅游</span>
+                                <span th:case="'问题'" class="label label-danger" th:text="${post.category}">问题</span>
+                                <span th:case="*" class="label label-default" th:text="${post.category}">其他</span>
+                            </span>
+                        </td>
+                        <td th:text="${#dates.format(post.psendtime,'yyyy-MM-dd HH:mm:ss')}">发布时间</td>
+                        <td th:text="${post.replyCount}">回复数</td>
+                        <td th:text="${post.favoriteCount}">收藏数</td>
+                        <td>
+                            <button type="button" class="btn btn-primary btn-xs" data-toggle="modal"
+                                    th:data-target="|#editModal${post.pid}|">
+                                编辑内容
+                            </button>
+                            <a th:href="|/delete/${post.pid}|">
+                                <button type="button" class="btn btn-danger btn-xs">删除</button>
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${#lists.isEmpty(myPosts)}" class="text-center" style="margin: 50px 0;">
+        <p class="text-muted">您还没有发布任何帖子</p>
+        <button class="btn btn-primary" data-toggle="modal" data-target="#sendModal">立即发帖</button>
+    </div>
+</div>
+
+<!-- 编辑内容模态框 -->
+<div th:each="post:${myPosts}" class="modal fade" th:id="|editModal${post.pid}|" tabindex="-1" role="dialog" aria-labelledby="editModalLabel">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button data-dismiss="modal" class="close" type="button"><span aria-hidden="true">×</span><span
+                        class="sr-only">Close</span></button>
+                <h4 class="modal-title" th:text="|编辑帖子: ${post.ptitle}|">编辑帖子</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" th:id="|editPostId${post.pid}" th:value="${post.pid}"/>
+                <textarea style="height: 150px;" class="form-control" th:id="|editPostContent${post.pid}"
+                          th:text="${post.pbody.replace('<br />', '&#10;')}"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button data-dismiss="modal" class="btn btn-default" type="button">关闭</button>
+                <button class="btn btn-primary" type="button"
+                        th:onclick="|updatePostContent(${post.pid})|">保存修改</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    function updatePostContent(pid) {
+        var pbody = $('#editPostContent' + pid).val();
+        if (pbody.length > 0 && pbody.length < 1000) {
+            var data = {"pbody": pbody, "pid": pid};
+            $.post("/updatePostContent.do", data, function (data) {
+                alert(data);
+                if (data == "更新成功")
+                    location.reload();
+            });
+        } else {
+            alert("内容长度不符合要求");
+        }
+    }
+    /*]]>*/
+</script>
+
+</body>
+</html>

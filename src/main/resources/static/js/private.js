@@ -96,9 +96,10 @@ $(function ()
     {
         var ptitle = $("#sendPostTitle").val();
         var pbody = $("#sendPostBody").val();
-        if ((ptitle.length > 0 && ptitle.length <= 30) && (pbody.length > 0 && pbody.length < 1000))
+        var category = $("#sendPostCategory").val();
+        if ((ptitle.length > 0 && ptitle.length <= 30) && (pbody.length > 0 && pbody.length < 1000) && category !== "")
         {
-            var data = {"ptitle": ptitle, "pbody": pbody};
+            var data = {"ptitle": ptitle, "pbody": pbody, "category": category};
             $.post("/sendPost.do", data, function (data)
             {
                 alert(data);
@@ -107,7 +108,7 @@ $(function ()
             });
         }
         else
-            alert("注意字数");
+            alert("注意字数和板块必须选择");
     });
     $("#sendReply").click(function ()
     {

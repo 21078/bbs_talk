@@ -120,4 +120,29 @@ public class PostServiceImpl implements PostService {
         }
         return page;
     }
+
+    /**
+     * 根据用户ID查询帖子
+     * @param uid 用户ID
+     * @return List<Post> 帖子列表
+     */
+    @Override
+    public List<Post> findPostsByUserId(Long uid) {
+        List<Post> postList = postMapper.findPostsByUserId(uid);
+        // 遍历查询每个帖子的回复数量
+        for (Post post : postList) {
+            post.setReplyCount(replyMapper.getReplyCountByPid(post.getPid()));
+        }
+        return postList;
+    }
+
+    /**
+     * 更新帖子内容
+     * @param post 帖子对象
+     * @return void
+     */
+    @Override
+    public void updatePostContent(Post post) {
+        postMapper.updatePostContent(post);
+    }
 }

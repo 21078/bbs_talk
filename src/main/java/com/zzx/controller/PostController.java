@@ -15,8 +15,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -46,18 +48,24 @@ public class PostController {
      */
     @RequestMapping(value = "/sendPost.do", method = RequestMethod.POST)
     @ResponseBody
-    public String sendPost(HttpSession session, Post post) {
+    public String sendPost(HttpSession session, Post post, String category) {
         User user = (User)session.getAttribute("user");
         if (null != user) {
             // 检查用户是否被禁言
             if (user.getUstate() == 0)
                 return "你已被禁言";
 
-            // 验证帖子标题和内容长度
-            if ((post.getPtitle().length() > 0 && post.getPtitle().length() <= 30) && (post.getPbody().length() > 0 && post.getPbody().length() < 1000)) {
+            // 预设板块列表
+            List<String> validCategories = Arrays.asList("娱乐", "技术", "美食", "旅游", "问题");
+
+            // 验证帖子标题、内容和板块
+            if ((post.getPtitle().length() > 0 && post.getPtitle().length() <= 30) &&
+                (post.getPbody().length() > 0 && post.getPbody().length() < 1000) &&
+                (category != null && validCategories.contains(category))) {
                 // 处理换行符，转换为HTML格式
                 post.setPbody(post.getPbody().replaceAll("\n", "<br />"));
                 post.setUser(user);
+                post.setCategory(category);
 
                 // 设置发帖时间和最后回复时间
                 Date date = new Date();
@@ -67,7 +75,7 @@ public class PostController {
                 postService.save(post);
                 return "发送成功";
             } else
-                return "注意字数";
+                return "注意字数和板块选择不正确";
         } else
             return "未登录";
     }
@@ -170,5 +178,50 @@ public class PostController {
         return "redirect:/";
     }
 
+    /**
+     * 我的帖子页面
+     * 显示当前用户发布的所有帖子
+     *
+     * @param model Spring MVC模型对象
+     * @param session HTTP会话对象
+     * @return 我的帖子页面视图
+     */
+    @RequestMapping(value = "/myPosts.do", method = RequestMethod.GET)
+    public String myPosts(Model model, HttpSession session) {
+        User user = (User)session.getAttribute("user");
+        if (user != null) {
+            List<Post> myPosts = postService.findPostsByUserId(user.getUid().longValue());
+            model.addAttribute("myPosts", myPosts);
+            return "my_posts";
+        }
+        return "redirect:/";
+    }
+
+    /**
+     * 更新帖子内容接口
+     * 允许用户修改自己帖子的内容（不能修改标题）
+     *
+     * @param post 帖子对象，包含新的内容
+     * @param session HTTP会话对象
+     * @return 更新结果消息
+     */
+    @RequestMapping(value = "/updatePostContent.do", method = RequestMethod.POST)
+    @ResponseBody
+    public String updatePostContent(Post post, HttpSession session) {
+        User user = (User)session.getAttribute("user");
+        if (user != null) {
+            // 验证内容长度
+            if (post.getPbody().length() > 0 && post.getPbody().length() < 1000) {
+                // 处理换行符，转换为HTML格式
+                post.setPbody(post.getPbody().replaceAll("\n", "<br />"));
+                post.setUser(user);
+                postService.updatePostContent(post);
+                return "更新成功";
+            } else {
+                return "内容长度不符合要求";
+            }
+        }
+        return "未登录";
+    }
 
 }

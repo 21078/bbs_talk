@@ -17,6 +17,7 @@ public class Post {
     private Date lastreplytime; // 最后回复时间
     private Long favoriteCount; // 帖子收藏数
     private Boolean isFavorited; // 当前用户是否已收藏此帖
+    private String category; // 帖子板块
 
     public Date getLastreplytime() {
         return lastreplytime;
@@ -88,5 +89,13 @@ public class Post {
 
     public void setIsFavorited(Boolean isFavorited) {
         this.isFavorited = isFavorited;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 }
