@@ -33,7 +33,7 @@ if %errorlevel% neq 0 (
 
 echo [1/4] Checking MySQL service...
 REM Check if MySQL is running
-mysql -u root -p1234 -e "SELECT 1;" > nul 2>&1
+mysql -u root -p123456 -e "SELECT 1;" > nul 2>&1
 if %errorlevel% neq 0 (
     echo ERROR: MySQL is not accessible
     echo Please ensure:
