@@ -36,7 +36,7 @@
 
     <insert id="saveReply" parameterType="Reply">
         INSERT INTO reply
-        VALUES (#{post.pid},#{user.uid},#{replymessage},#{replytime},null)
+        VALUES (null,#{post.pid},#{user.uid},#{replymessage},#{replytime})
     </insert>
 
 

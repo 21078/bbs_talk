@@ -114,7 +114,9 @@ $(function ()
             {
                 alert(data);
                 if (data == "发送成功")
-                    location.reload()
+                    location.reload();
+                else if (data == "你已被禁言")
+                    return false;
             });
         }
         else
@@ -122,16 +124,22 @@ $(function ()
     });
     $("#sendReply").click(function ()
     {
+        console.log("sendReply clicked");
         var replyMessage = $("#replyMessage").val();
         var pid = $("#pid").val();
+        console.log("replyMessage:", replyMessage, "pid:", pid);
         if (replyMessage.length > 0 && replyMessage.length <= 1000)
         {
             var data = {"replymessage": replyMessage, "post.pid": pid};
+            console.log("Sending reply data:", data);
             $.post("/reply.do", data, function (data)
             {
+                console.log("Reply response:", data);
                 alert(data);
                 if (data == "回帖成功")
-                    location.reload()
+                    location.reload();
+                else if (data == "你已被禁言")
+                    return false;
             });
         }
         else
@@ -183,31 +191,45 @@ function banUser(uid)
 
 function unbanUser(uid)
 {
-    $.get("/ban/" + uid, function (data)
+    $.get("/unban/" + uid, function (data)
     {
-        alert(data)
-        if (data == "禁言成功")
+        alert(data);
+        if (data == "解禁成功")
             location.reload();
     });
 }
 
 function addFavorite(pid)
 {
-    $.get("/favorite/add/" + pid, function (data)
-    {
+    console.log("Adding favorite for post:", pid);
+    $.get("/favorite/add/" + pid)
+    .done(function(data) {
+        console.log("Add favorite response:", data);
         alert(data);
-        if (data == "添加收藏成功" || data.indexOf("成功") > -1)
+        if (data == "添加收藏成功" || data.indexOf("成功") > -1) {
             location.reload();
+        }
+    })
+    .fail(function(xhr, status, error) {
+        console.error("Add favorite failed:", status, error);
+        alert("收藏失败：" + (xhr.responseText || "网络错误"));
     });
 }
 
 function removeFavorite(pid)
 {
-    $.get("/favorite/remove/" + pid, function (data)
-    {
+    console.log("Removing favorite for post:", pid);
+    $.get("/favorite/remove/" + pid)
+    .done(function(data) {
+        console.log("Remove favorite response:", data);
         alert(data);
-        if (data == "取消收藏成功" || data.indexOf("成功") > -1)
+        if (data == "取消收藏成功" || data.indexOf("成功") > -1) {
             location.reload();
+        }
+    })
+    .fail(function(xhr, status, error) {
+        console.error("Remove favorite failed:", status, error);
+        alert("取消收藏失败：" + (xhr.responseText || "网络错误"));
     });
 }
 
