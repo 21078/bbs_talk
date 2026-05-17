@@ -7,7 +7,7 @@
 
     <insert id="save" parameterType="Post">
         INSERT INTO post
-        VALUES (null,#{ptitle},#{pbody},#{psendtime},#{lastreplytime},#{user.uid},#{category},0)
+        VALUES (null,#{ptitle},#{pbody},#{psendtime},#{lastreplytime},#{user.uid},#{category},#{isSticky})
     </insert>
 
     <resultMap type="Post" id="PostAndUser">
@@ -102,10 +102,10 @@
         WHERE pid = #{pid} AND uid = #{user.uid}
     </update>
 
-    <update id="toggleSticky" parameterType="Map">
+    <update id="toggleSticky">
         UPDATE post
-        SET is_sticky = #{isSticky}
-        WHERE pid = #{pid}
+        SET is_sticky = #{param2}
+        WHERE pid = #{param1}
     </update>
 
 </mapper>

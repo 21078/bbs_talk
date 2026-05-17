@@ -71,6 +71,8 @@ public class PostController {
                 Date date = new Date();
                 post.setPsendtime(date);
                 post.setLastreplytime(date);
+                // 设置默认非置顶状态
+                post.setIsSticky(0);
 
                 postService.save(post);
                 return "发送成功";
