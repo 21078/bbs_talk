@@ -29,6 +29,7 @@
                     <tr>
                         <th>标题</th>
                         <th>板块</th>
+                        <th>置顶</th>
                         <th>发布时间</th>
                         <th>回复数</th>
                         <th>收藏数</th>
@@ -46,6 +47,14 @@
                                 <span th:case="'旅游'" class="label label-info" th:text="${post.category}">旅游</span>
                                 <span th:case="'问题'" class="label label-danger" th:text="${post.category}">问题</span>
                                 <span th:case="*" class="label label-default" th:text="${post.category}">其他</span>
+                            </span>
+                        </td>
+                        <td>
+                            <span th:if="${post.isSticky != null and post.isSticky == 1}" class="label label-danger">
+                                <span class="glyphicon glyphicon-pushpin"></span> 置顶
+                            </span>
+                            <span th:if="${post.isSticky == null or post.isSticky == 0}" class="label label-default">
+                                普通
                             </span>
                         </td>
                         <td th:text="${#dates.format(post.psendtime,'yyyy-MM-dd HH:mm:ss')}">发布时间</td>

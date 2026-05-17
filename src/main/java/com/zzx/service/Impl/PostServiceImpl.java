@@ -183,4 +183,14 @@ public class PostServiceImpl implements PostService {
         }
         return page;
     }
+
+    /**
+     * 切换帖子置顶状态
+     * @param pid 帖子ID
+     * @param isSticky 置顶状态：0取消置顶，1置顶
+     */
+    @Override
+    public void toggleSticky(Long pid, Integer isSticky) {
+        postMapper.toggleSticky(pid, isSticky);
+    }
 }

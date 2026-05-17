@@ -18,6 +18,7 @@ public class Post {
     private Long favoriteCount; // 帖子收藏数
     private Boolean isFavorited; // 当前用户是否已收藏此帖
     private String category; // 帖子板块
+    private Integer isSticky; // 是否置顶：0否，1是
 
     public Date getLastreplytime() {
         return lastreplytime;
@@ -97,5 +98,13 @@ public class Post {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public Integer getIsSticky() {
+        return isSticky;
+    }
+
+    public void setIsSticky(Integer isSticky) {
+        this.isSticky = isSticky;
     }
 }

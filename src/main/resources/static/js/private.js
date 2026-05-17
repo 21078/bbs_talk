@@ -211,6 +211,19 @@ function removeFavorite(pid)
     });
 }
 
+function toggleSticky(pid, action)
+{
+    var actionText = action === 'sticky' ? '置顶' : '取消置顶';
+    if (confirm('确定要' + actionText + '这个帖子吗？')) {
+        $.get("/toggleSticky/" + pid + "/" + action, function (data)
+        {
+            alert(data);
+            if (data.indexOf("成功") > -1)
+                location.reload();
+        });
+    }
+}
+
 function login()
 {
     var uname = $("#loginUname").val();

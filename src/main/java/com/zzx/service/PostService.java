@@ -66,4 +66,11 @@ public interface PostService {
      * @return Page<Post> 分页对象
      */
     Page<Post> findPostByPageAndCategory(Map<String, Long> map, String category);
+
+    /**
+     * 切换帖子置顶状态
+     * @param pid 帖子ID
+     * @param isSticky 置顶状态：0取消置顶，1置顶
+     */
+    void toggleSticky(Long pid, Integer isSticky);
 }

@@ -224,4 +224,31 @@ public class PostController {
         return "未登录";
     }
 
+    /**
+     * 切换帖子置顶状态接口
+     * 管理员可以将帖子置顶或取消置顶
+     *
+     * @param pid 帖子ID
+     * @param action 操作：sticky置顶，unsticky取消置顶
+     * @param session HTTP会话对象
+     * @return 操作结果消息
+     */
+    @RequestMapping(value = "/toggleSticky/{pid}/{action}", method = RequestMethod.GET)
+    @ResponseBody
+    public String toggleSticky(@PathVariable Long pid, @PathVariable String action, HttpSession session) {
+        User user = (User)session.getAttribute("user");
+        if (user != null && user.getLevel() == 0) { // 只有管理员可以操作
+            if ("sticky".equals(action)) {
+                postService.toggleSticky(pid, 1);
+                return "置顶成功";
+            } else if ("unsticky".equals(action)) {
+                postService.toggleSticky(pid, 0);
+                return "取消置顶成功";
+            } else {
+                return "操作参数错误";
+            }
+        }
+        return "权限不足或未登录";
+    }
+
 }
