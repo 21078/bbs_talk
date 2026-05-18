@@ -75,4 +75,12 @@ public interface ReplyMapper {
      */
     void clearOtherStickyReplies(@Param("pid") Long pid, @Param("excludeRid") Long excludeRid);
 
+    /**
+     * 根据回复ID查询回复
+     *
+     * @param rid 回复ID
+     * @return 回复对象
+     */
+    Reply findReplyById(Long rid);
+
 }

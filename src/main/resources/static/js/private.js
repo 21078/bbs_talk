@@ -102,14 +102,38 @@ $(function ()
     });
 
 
+    // 监听板块选择，如果是问题板块则显示奖励输入框
+    $("#sendPostCategory").change(function () {
+        if ($(this).val() === "问题") {
+            $("#sendPostPrize").show();
+        } else {
+            $("#sendPostPrize").hide();
+            $("#sendPostPrize").val("");
+        }
+    });
+
     $("#sendPostButton").click(function ()
     {
         var ptitle = $("#sendPostTitle").val();
         var pbody = $("#sendPostBody").val();
         var category = $("#sendPostCategory").val();
+        var prize = $("#sendPostPrize").val();
+
         if ((ptitle.length > 0 && ptitle.length <= 30) && (pbody.length > 0 && pbody.length < 1000) && category !== "")
         {
+            // 如果是问题板块，验证奖励积分
+            if (category === "问题") {
+                if (!prize || prize < 1 || prize > 10) {
+                    alert("问题板块必须设置奖励积分(1-10)");
+                    return;
+                }
+            }
+
             var data = {"ptitle": ptitle, "pbody": pbody, "category": category};
+            if (prize) {
+                data.prize = parseInt(prize);
+            }
+
             $.post("/sendPost.do", data, function (data)
             {
                 alert(data);

@@ -80,4 +80,11 @@
         WHERE pid = #{pid} AND rid != #{excludeRid} AND is_sticky = 1
     </update>
 
+    <!-- 根据回复ID查询回复 -->
+    <select id="findReplyById" parameterType="Long" resultMap="ReplyAndUser">
+        SELECT u.uid,u.uname,replymessage,replytime,rid,is_sticky
+        FROM reply r LEFT JOIN user u ON r.uid = u.uid
+        WHERE rid = #{value}
+    </select>
+
 </mapper>

@@ -2,7 +2,9 @@ package com.zzx.service.Impl;
 
 import com.zzx.mapper.PostMapper;
 import com.zzx.mapper.ReplyMapper;
+import com.zzx.mapper.UserMapper;
 import com.zzx.model.Page;
+import com.zzx.model.Post;
 import com.zzx.model.Reply;
 import com.zzx.service.ReplyService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,9 @@ public class ReplyServiceImpl implements ReplyService {
 
     @Autowired
     private PostMapper postMapper;
+
+    @Autowired
+    private UserMapper userMapper;
 
     /**
      * 根据帖子ID查询回复列表
@@ -90,6 +95,7 @@ public class ReplyServiceImpl implements ReplyService {
     /**
      * 切换回复置顶状态
      * 只有帖子创建者可以操作，每个帖子只能有一个置顶回复
+     * 如果是问答板块的帖子，置顶回复时会给回复者奖励积分
      *
      * @param rid 回复ID
      * @param uid 用户ID（用于验证权限）
@@ -98,6 +104,7 @@ public class ReplyServiceImpl implements ReplyService {
      * @return 操作结果消息
      */
     @Override
+    @Transactional
     public String toggleReplySticky(Long rid, Long uid, Long pid, String action) {
         // 验证用户是否为帖子创建者
         if (!postMapper.isPostCreator(pid, uid)) {
@@ -108,6 +115,18 @@ public class ReplyServiceImpl implements ReplyService {
             // 置顶回复：先清除该帖子的其他置顶回复，再置顶当前回复
             replyMapper.clearOtherStickyReplies(pid, rid);
             replyMapper.toggleReplySticky(rid, 1);
+
+            // 检查是否为问答板块，如果是则给回复者奖励积分
+            Post post = postMapper.findPostById(pid);
+            if (post != null && "问题".equals(post.getCategory()) && post.getPrize() != null && post.getPrize() > 0) {
+                // 获取回复用户ID
+                Reply reply = replyMapper.findReplyById(rid);
+                if (reply != null) {
+                    // 给用户添加积分
+                    userMapper.addUserScore(reply.getUser().getUid(), post.getPrize());
+                }
+            }
+
             return "置顶成功";
         } else if ("unsticky".equals(action)) {
             // 取消置顶

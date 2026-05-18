@@ -9,6 +9,7 @@ import com.zzx.model.User;
 import com.zzx.service.PostService;
 import com.zzx.service.ReplyService;
 import com.zzx.service.FavoriteService;
+import com.zzx.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -38,17 +39,22 @@ public class PostController {
     @Autowired
     private FavoriteService favoriteService;
 
+    @Autowired
+    private UserService userService;
+
     /**
      * 发布帖子接口
      * 处理用户发布新帖子的请求
      *
      * @param session HTTP会话对象
      * @param post 帖子对象，包含标题和内容
+     * @param category 帖子板块
+     * @param prize 奖励积分（问答板块使用）
      * @return 发布结果消息
      */
     @RequestMapping(value = "/sendPost.do", method = RequestMethod.POST)
     @ResponseBody
-    public String sendPost(HttpSession session, Post post, String category) {
+    public String sendPost(HttpSession session, Post post, String category, Integer prize) {
         User user = (User)session.getAttribute("user");
         if (null != user) {
             // 检查用户是否被禁言
@@ -62,10 +68,25 @@ public class PostController {
             if ((post.getPtitle().length() > 0 && post.getPtitle().length() <= 30) &&
                 (post.getPbody().length() > 0 && post.getPbody().length() < 1000) &&
                 (category != null && validCategories.contains(category))) {
+
+                // 如果是问题板块，验证奖励积分
+                if ("问题".equals(category)) {
+                    if (prize == null || prize < 1 || prize > 10) {
+                        return "问题板块必须设置奖励积分(1-10)";
+                    }
+                    // 检查用户积分是否足够
+                    if (user.getScore() == null || user.getScore() < prize) {
+                        return "积分不足，无法设置该奖励积分";
+                    }
+                } else {
+                    prize = 0; // 非问题板块奖励为0
+                }
+
                 // 处理换行符，转换为HTML格式
                 post.setPbody(post.getPbody().replaceAll("\n", "<br />"));
                 post.setUser(user);
                 post.setCategory(category);
+                post.setPrize(prize);
 
                 // 设置发帖时间和最后回复时间
                 Date date = new Date();
@@ -75,6 +96,18 @@ public class PostController {
                 post.setIsSticky(0);
 
                 postService.save(post);
+
+                // 如果是问题板块，扣除用户积分
+                if ("问题".equals(category) && prize > 0) {
+                    boolean deductSuccess = userService.deductUserScore(user.getUid(), prize);
+                    if (!deductSuccess) {
+                        return "积分扣除失败，发帖失败";
+                    }
+                    // 更新session中的用户积分信息
+                    User updatedUser = userService.findUserByUid(user.getUid());
+                    session.setAttribute("user", updatedUser);
+                }
+
                 return "发送成功";
             } else
                 return "注意字数和板块选择不正确";

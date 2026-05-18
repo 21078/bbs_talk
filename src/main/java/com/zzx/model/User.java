@@ -20,6 +20,7 @@ public class User {
     private String phone; // 联系电话
     private String career; // 职业
     private String address; // 工作地址
+    private Integer score; // 用户积分
     private List<Post> postList; // 用户发布的帖子列表
 
     public Integer getUid() {
@@ -94,6 +95,14 @@ public class User {
         this.address = address;
     }
 
+    public Integer getScore() {
+        return score;
+    }
+
+    public void setScore(Integer score) {
+        this.score = score;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -106,6 +115,7 @@ public class User {
                 ", phone='" + phone + '\'' +
                 ", career='" + career + '\'' +
                 ", address='" + address + '\'' +
+                ", score=" + score +
                 '}';
     }
 }

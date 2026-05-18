@@ -19,6 +19,7 @@ public class Post {
     private Boolean isFavorited; // 当前用户是否已收藏此帖
     private String category; // 帖子板块
     private Integer isSticky; // 是否置顶：0否，1是
+    private Integer prize; // 奖励积分，问答板块使用
 
     public Date getLastreplytime() {
         return lastreplytime;
@@ -106,5 +107,13 @@ public class Post {
 
     public void setIsSticky(Integer isSticky) {
         this.isSticky = isSticky;
+    }
+
+    public Integer getPrize() {
+        return prize;
+    }
+
+    public void setPrize(Integer prize) {
+        this.prize = prize;
     }
 }

@@ -1,6 +1,7 @@
 package com.zzx.mapper;
 
 import com.zzx.model.User;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -55,4 +56,20 @@ public interface UserMapper {
      * 更改用户密码
      */
     void updateUserPwd(User user);
+
+    /**
+     * 为用户添加积分
+     *
+     * @param uid 用户ID
+     * @param score 要添加的积分数
+     */
+    void addUserScore(@Param("uid") Integer uid, @Param("score") Integer score);
+
+    /**
+     * 扣除用户积分
+     *
+     * @param uid 用户ID
+     * @param score 要扣除的积分数
+     */
+    void deductUserScore(@Param("uid") Integer uid, @Param("score") Integer score);
 }

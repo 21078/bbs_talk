@@ -59,4 +59,21 @@ public interface UserService {
      * 更新用户信息
      */
     void updateUser(User user);
+
+    /**
+     * 扣除用户积分
+     *
+     * @param uid 用户ID
+     * @param score 要扣除的积分数
+     * @return 扣除是否成功（false表示积分不足）
+     */
+    boolean deductUserScore(Integer uid, Integer score);
+
+    /**
+     * 为用户添加积分
+     *
+     * @param uid 用户ID
+     * @param score 要添加的积分数
+     */
+    void addUserScore(Integer uid, Integer score);
 }

@@ -7,7 +7,7 @@
 
     <insert id="save" parameterType="Post">
         INSERT INTO post
-        VALUES (null,#{ptitle},#{pbody},#{psendtime},#{lastreplytime},#{user.uid},#{category},#{isSticky})
+        VALUES (null,#{ptitle},#{pbody},#{psendtime},#{lastreplytime},#{user.uid},#{category},#{isSticky},#{prize})
     </insert>
 
     <resultMap type="Post" id="PostAndUser">
@@ -21,24 +21,25 @@
         <result property="favoriteCount" column="favorite_count"/>
         <result property="category" column="category"/>
         <result property="isSticky" column="is_sticky"/>
+        <result property="prize" column="prize"/>
     </resultMap>
 
 
     <select id="findAllPost" resultMap="PostAndUser">
-        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,COUNT(f.fid) as favorite_count,p.category,p.is_sticky
+        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,COUNT(f.fid) as favorite_count,p.category,p.is_sticky,p.prize
         FROM post p LEFT JOIN user u on p.uid = u.uid
         LEFT JOIN favorite f on p.pid = f.pid
-        GROUP BY p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,p.category,p.is_sticky
+        GROUP BY p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,p.category,p.is_sticky,p.prize
         ORDER BY p.is_sticky DESC, lastreplytime DESC
     </select>
 
 
     <select id="findPostById" resultMap="PostAndUser" parameterType="Long">
-        SELECT p.pid,p.ptitle,p.pbody,p.psendtime,u.uid,u.uname,COUNT(f.fid) as favorite_count,p.category,p.is_sticky
+        SELECT p.pid,p.ptitle,p.pbody,p.psendtime,u.uid,u.uname,COUNT(f.fid) as favorite_count,p.category,p.is_sticky,p.prize
         FROM post p LEFT JOIN user u on p.uid = u.uid
         LEFT JOIN favorite f on p.pid = f.pid
         WHERE p.pid=#{value}
-        GROUP BY p.pid,p.ptitle,p.pbody,p.psendtime,u.uid,u.uname,p.category,p.is_sticky
+        GROUP BY p.pid,p.ptitle,p.pbody,p.psendtime,u.uid,u.uname,p.category,p.is_sticky,p.prize
     </select>
 
     <update id="updatePostLastReplyTime" parameterType="Post">
@@ -58,10 +59,10 @@
     </parameterMap>
 
     <select id="findPostByPage" parameterMap="StartPageAndshowPage" resultMap="PostAndUser">
-        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,COUNT(f.fid) as favorite_count,p.category,p.is_sticky
+        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,COUNT(f.fid) as favorite_count,p.category,p.is_sticky,p.prize
         FROM post p LEFT JOIN user u on p.uid = u.uid
         LEFT JOIN favorite f on p.pid = f.pid
-        GROUP BY p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,p.category,p.is_sticky
+        GROUP BY p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,p.category,p.is_sticky,p.prize
         ORDER BY p.is_sticky DESC, lastreplytime DESC
         LIMIT #{startPage},#{showPage}
     </select>
@@ -72,11 +73,11 @@
     </select>
 
     <select id="findPostByPageAndCategory" parameterType="Map" resultMap="PostAndUser">
-        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,COUNT(f.fid) as favorite_count,p.category,p.is_sticky
+        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,COUNT(f.fid) as favorite_count,p.category,p.is_sticky,p.prize
         FROM post p LEFT JOIN user u on p.uid = u.uid
         LEFT JOIN favorite f on p.pid = f.pid
         WHERE p.category = #{category}
-        GROUP BY p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,p.category,p.is_sticky
+        GROUP BY p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,p.category,p.is_sticky,p.prize
         ORDER BY p.is_sticky DESC, lastreplytime DESC
         LIMIT #{startPage},#{showPage}
     </select>
@@ -88,11 +89,11 @@
     </select>
 
     <select id="findPostsByUserId" resultMap="PostAndUser" parameterType="Long">
-        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,COUNT(f.fid) as favorite_count,p.category,p.is_sticky
+        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,COUNT(f.fid) as favorite_count,p.category,p.is_sticky,p.prize
         FROM post p LEFT JOIN user u on p.uid = u.uid
         LEFT JOIN favorite f on p.pid = f.pid
         WHERE p.uid = #{value}
-        GROUP BY p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,p.category,p.is_sticky
+        GROUP BY p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,p.category,p.is_sticky,p.prize
         ORDER BY p.is_sticky DESC, psendtime DESC
     </select>
 

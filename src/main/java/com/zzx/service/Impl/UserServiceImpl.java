@@ -135,5 +135,36 @@ public class UserServiceImpl implements UserService {
         userMapper.updateUser(user);
     }
 
+    /**
+     * 扣除用户积分
+     * 扣除用户指定数量的积分，如果积分不足则扣除失败
+     *
+     * @param uid 用户ID
+     * @param score 要扣除的积分数
+     * @return 扣除是否成功（false表示积分不足）
+     */
+    @Override
+    public boolean deductUserScore(Integer uid, Integer score) {
+        // 先检查用户积分是否足够
+        User user = userMapper.findUserByUid(uid);
+        if (user != null && user.getScore() != null && user.getScore() >= score) {
+            userMapper.deductUserScore(uid, score);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 为用户添加积分
+     * 给指定用户添加积分
+     *
+     * @param uid 用户ID
+     * @param score 要添加的积分数
+     */
+    @Override
+    public void addUserScore(Integer uid, Integer score) {
+        userMapper.addUserScore(uid, score);
+    }
+
 
 }
