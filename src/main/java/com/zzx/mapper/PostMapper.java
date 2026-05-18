@@ -1,6 +1,7 @@
 package com.zzx.mapper;
 
 import com.zzx.model.Post;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -100,4 +101,13 @@ public interface PostMapper {
      * @param isSticky 置顶状态：0取消置顶，1置顶
      */
     void toggleSticky(Long pid, Integer isSticky);
+
+    /**
+     * 检查用户是否为帖子创建者
+     *
+     * @param pid 帖子ID
+     * @param uid 用户ID
+     * @return true表示是创建者，false表示不是
+     */
+    boolean isPostCreator(@Param("pid") Long pid, @Param("uid") Long uid);
 }

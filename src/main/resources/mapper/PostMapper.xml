@@ -108,4 +108,11 @@
         WHERE pid = #{param1}
     </update>
 
+    <!-- 检查用户是否为帖子创建者 -->
+    <select id="isPostCreator" parameterType="Map" resultType="boolean">
+        SELECT COUNT(1) > 0
+        FROM post
+        WHERE pid = #{pid} AND uid = #{uid}
+    </select>
+
 </mapper>

@@ -12,6 +12,7 @@ public class Reply {
     private String replymessage; // 回复内容
     private Date replytime; // 回复时间
     private Long rid; // 回复ID，主键
+    private Integer isSticky; // 是否置顶，0否1是
 
     public Long getRid() {
         return rid;
@@ -51,5 +52,13 @@ public class Reply {
 
     public void setReplytime(Date replytime) {
         this.replytime = replytime;
+    }
+
+    public Integer getIsSticky() {
+        return isSticky;
+    }
+
+    public void setIsSticky(Integer isSticky) {
+        this.isSticky = isSticky;
     }
 }

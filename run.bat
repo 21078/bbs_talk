@@ -52,7 +52,7 @@ echo.
 echo [2/4] Updating database...
 if exist "bbs.sql" (
     echo Found bbs.sql, updating database...
-    mysql -u root -p1234 --default-character-set=utf8mb4 < bbs.sql
+    mysql -u root -p123456 --default-character-set=utf8mb4 < bbs.sql
     if %errorlevel% equ 0 (
         echo Database update: SUCCESS
     ) else (

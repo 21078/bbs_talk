@@ -250,6 +250,23 @@ function toggleSticky(pid, action)
     }
 }
 
+function toggleReplySticky(rid, pid, action)
+{
+    var actionText = action === 'sticky' ? '置顶' : '取消置顶';
+    if (confirm('确定要' + actionText + '这个回复吗？')) {
+        $.get("/toggleReplySticky/" + rid + "/" + pid + "/" + action)
+        .done(function(data) {
+            alert(data);
+            if (data.indexOf("成功") > -1) {
+                location.reload();
+            }
+        })
+        .fail(function(xhr, status, error) {
+            alert("操作失败：" + (xhr.responseText || "网络错误"));
+        });
+    }
+}
+
 function login()
 {
     var uname = $("#loginUname").val();

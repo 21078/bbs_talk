@@ -102,7 +102,12 @@
 
     <div class="row" th:each="r,status:${page.modelList}">
         <div class="col-xs-12">
-            <div class="panel panel-info">
+            <div class="panel panel-info" th:classappend="${r.isSticky != null and r.isSticky == 1}?'panel-warning':''">
+                <div class="panel-heading" th:if="${r.isSticky != null and r.isSticky == 1}">
+                    <span class="label label-danger">
+                        <span class="glyphicon glyphicon-pushpin"></span> 置顶回复
+                    </span>
+                </div>
                 <div class="panel-body" th:utext="${r.replymessage}">
                     回复
                 </div>
@@ -110,10 +115,10 @@
                     <div class="col-xs-2">
                         <span class="text-info" th:text="|回复用户:${r.user.uname}|">用户:xxx</span>
                     </div>
-                    <div class="col-xs-6">
+                    <div class="col-xs-4">
                         <span class="text-primary" th:text="|回复时间:${#dates.format(r.replytime,'yyyy-MM-dd HH:mm:ss')}|">回复时间:2019-2-5-08:00:00</span>
                     </div>
-                    <div class="col-xs-3">
+                    <div class="col-xs-2">
                         <span class="text-info"
                               th:text="|${status.count+(page.showCount*((page.currentPage)-1))}楼|">1楼</span>
                     </div>
@@ -121,6 +126,18 @@
                          th:if="${session.user!=null}?${session.user.level==0}:false">
                         <a th:href="|/deleteReply/${r.rid}|">
                             <button type="button" class="btn btn-primary btn-xs" id="deleteReply">删除</button>
+                        </a>
+                    </div>
+                    <div class="col-xs-3" th:if="${session.user!=null and isPostCreator}">
+                        <a th:if="${r.isSticky != null and r.isSticky == 1}" th:href="|javascript:toggleReplySticky(${r.rid}, ${post.pid}, 'unsticky')|">
+                            <button type="button" class="btn btn-warning btn-xs">
+                                <span class="glyphicon glyphicon-arrow-down"></span> 取消置顶
+                            </button>
+                        </a>
+                        <a th:if="${r.isSticky == null or r.isSticky == 0}" th:href="|javascript:toggleReplySticky(${r.rid}, ${post.pid}, 'sticky')|">
+                            <button type="button" class="btn btn-success btn-xs">
+                                <span class="glyphicon glyphicon-arrow-up"></span> 置顶
+                            </button>
                         </a>
                     </div>
                 </div>

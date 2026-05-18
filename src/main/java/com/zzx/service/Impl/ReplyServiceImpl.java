@@ -86,4 +86,35 @@ public class ReplyServiceImpl implements ReplyService {
     public void deleteReplyRid(Long rid) {
         replyMapper.deleteReplyByRid(rid);
     }
+
+    /**
+     * 切换回复置顶状态
+     * 只有帖子创建者可以操作，每个帖子只能有一个置顶回复
+     *
+     * @param rid 回复ID
+     * @param uid 用户ID（用于验证权限）
+     * @param pid 帖子ID（用于验证权限）
+     * @param action 操作：sticky置顶，unsticky取消置顶
+     * @return 操作结果消息
+     */
+    @Override
+    public String toggleReplySticky(Long rid, Long uid, Long pid, String action) {
+        // 验证用户是否为帖子创建者
+        if (!postMapper.isPostCreator(pid, uid)) {
+            return "只有帖子创建者可以操作回复置顶";
+        }
+
+        if ("sticky".equals(action)) {
+            // 置顶回复：先清除该帖子的其他置顶回复，再置顶当前回复
+            replyMapper.clearOtherStickyReplies(pid, rid);
+            replyMapper.toggleReplySticky(rid, 1);
+            return "置顶成功";
+        } else if ("unsticky".equals(action)) {
+            // 取消置顶
+            replyMapper.toggleReplySticky(rid, 0);
+            return "取消置顶成功";
+        } else {
+            return "操作参数错误";
+        }
+    }
 }

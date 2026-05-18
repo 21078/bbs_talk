@@ -22,21 +22,23 @@
 
         <result property="replymessage" column="replymessage"/>
         <result property="replytime" column="replytime"/>
+        <result property="isSticky" column="is_sticky"/>
         <result property="user.uid" column="uid"/>
         <result property="user.uname" column="uname"/>
 
     </resultMap>
 
     <select id="findReplyByPid" resultMap="ReplyAndUser" parameterType="Long">
-        SELECT u.uid,u.uname,replymessage,replytime,rid
+        SELECT u.uid,u.uname,replymessage,replytime,rid,is_sticky
         FROM reply r LEFT JOIN user u ON r.uid = u.uid
         WHERE pid = #{value}
+        ORDER BY is_sticky DESC, replytime ASC
     </select>
 
 
     <insert id="saveReply" parameterType="Reply">
         INSERT INTO reply
-        VALUES (null,#{post.pid},#{user.uid},#{replymessage},#{replytime})
+        VALUES (null,#{post.pid},#{user.uid},#{replymessage},#{replytime},0)
     </insert>
 
 
@@ -52,9 +54,10 @@
     </parameterMap>
 
     <select id="findReplyByPidAndPage" resultMap="ReplyAndUser" parameterMap="PidStartPageShowPage">
-        SELECT u.uid,u.uname,replymessage,replytime,rid
+        SELECT u.uid,u.uname,replymessage,replytime,rid,is_sticky
         FROM reply r LEFT JOIN user u ON r.uid = u.uid
         WHERE pid = #{pid}
+        ORDER BY is_sticky DESC, replytime ASC
         LIMIT #{startPage},#{showPage}
     </select>
     
@@ -62,5 +65,19 @@
         DELETE FROM reply
         WHERE rid = #{value}
     </delete>
+
+    <!-- 切换回复置顶状态 -->
+    <update id="toggleReplySticky" parameterType="map">
+        UPDATE reply
+        SET is_sticky = #{isSticky}
+        WHERE rid = #{rid}
+    </update>
+
+    <!-- 清除帖子其他回复的置顶状态 -->
+    <update id="clearOtherStickyReplies" parameterType="map">
+        UPDATE reply
+        SET is_sticky = 0
+        WHERE pid = #{pid} AND rid != #{excludeRid} AND is_sticky = 1
+    </update>
 
 </mapper>

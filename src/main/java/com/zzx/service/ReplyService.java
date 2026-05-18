@@ -39,4 +39,16 @@ public interface ReplyService {
      * @param rid
      */
     void deleteReplyRid(Long rid);
+
+    /**
+     * 切换回复置顶状态
+     * 只有帖子创建者可以操作
+     *
+     * @param rid 回复ID
+     * @param uid 用户ID（用于验证权限）
+     * @param pid 帖子ID（用于验证权限）
+     * @param action 操作：sticky置顶，unsticky取消置顶
+     * @return 操作结果消息
+     */
+    String toggleReplySticky(Long rid, Long uid, Long pid, String action);
 }

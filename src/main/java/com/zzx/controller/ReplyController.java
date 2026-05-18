@@ -45,4 +45,24 @@ public class ReplyController {
 
 
     }
+
+    /**
+     * 切换回复置顶状态接口
+     * 只有帖子创建者可以操作回复置顶
+     *
+     * @param rid 回复ID
+     * @param pid 帖子ID
+     * @param action 操作：sticky置顶，unsticky取消置顶
+     * @param session HTTP会话对象
+     * @return 操作结果消息
+     */
+    @RequestMapping(value = "/toggleReplySticky/{rid}/{pid}/{action}", method = RequestMethod.GET)
+    @ResponseBody
+    public String toggleReplySticky(@PathVariable Long rid, @PathVariable Long pid, @PathVariable String action, HttpSession session) {
+        User user = (User)session.getAttribute("user");
+        if (user != null) {
+            return replyService.toggleReplySticky(rid, user.getUid().longValue(), pid, action);
+        }
+        return "未登录";
+    }
 }

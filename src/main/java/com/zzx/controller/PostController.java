@@ -103,8 +103,13 @@ public class PostController {
         if (user != null) {
             Favorite existing = favoriteService.findByUserAndPost(user.getUid(), pid);
             post.setIsFavorited(existing != null);
+
+            // 检查当前用户是否为帖子创建者
+            boolean isPostCreator = post.getUser().getUid().equals(user.getUid());
+            model.addAttribute("isPostCreator", isPostCreator);
         } else {
             post.setIsFavorited(false);
+            model.addAttribute("isPostCreator", false);
         }
 
         model.addAttribute("post", post);

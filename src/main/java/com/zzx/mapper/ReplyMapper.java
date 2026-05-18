@@ -2,6 +2,7 @@ package com.zzx.mapper;
 
 import com.zzx.model.Post;
 import com.zzx.model.Reply;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -57,5 +58,21 @@ public interface ReplyMapper {
      * @param rid
      */
     void deleteReplyByRid(Long rid);
+
+    /**
+     * 切换回复置顶状态
+     *
+     * @param rid 回复ID
+     * @param isSticky 置顶状态：1置顶，0取消置顶
+     */
+    void toggleReplySticky(@Param("rid") Long rid, @Param("isSticky") Integer isSticky);
+
+    /**
+     * 清除帖子的所有置顶回复（当取消某个回复的置顶时，确保只有一个置顶）
+     *
+     * @param pid 帖子ID
+     * @param excludeRid 排除的回复ID（当前要置顶的回复）
+     */
+    void clearOtherStickyReplies(@Param("pid") Long pid, @Param("excludeRid") Long excludeRid);
 
 }
