@@ -72,4 +72,11 @@ public interface UserMapper {
      * @param score 要扣除的积分数
      */
     void deductUserScore(@Param("uid") Integer uid, @Param("score") Integer score);
+
+    /**
+     * 删除用户
+     *
+     * @param uid 用户ID
+     */
+    void deleteUser(Integer uid);
 }

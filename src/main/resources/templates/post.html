@@ -37,12 +37,20 @@
                         <span th:case="*" class="label label-default pull-right" th:text="${post.category}">其他</span>
                     </span>
                 </div>
-                <div class="panel-body" th:utext="${post.pbody}">
-                    帖子内容<br/>
-                    帖子内容<br/>
-                    帖子内容<br/>
+                <div class="panel-body">
+                    <!-- 封面图片显示 -->
+                    <div th:if="${post.path != null and !post.path.isEmpty()}" style="margin-bottom: 15px;">
+                        <img th:src="${post.path}" alt="封面图片" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"
+                             onerror="this.src='https://via.placeholder.com/600x300/e0e0e0/666?text=No+Image';">
+                    </div>
+                    <!-- 帖子内容 -->
+                    <div th:utext="${post.pbody}">
+                        帖子内容<br/>
+                        帖子内容<br/>
+                        帖子内容<br/>
 
-                    帖子内容<br/>
+                        帖子内容<br/>
+                    </div>
                 </div>
                 <div class="panel-footer" style="height: 40px;">
                     <div class="col-xs-2">
@@ -67,12 +75,12 @@
                     <div class="col-xs-1" th:if="${session.user!=null}">
                         <button type="button" class="btn btn-warning btn-xs favorite-btn"
                                 th:if="${post.isFavorited==null or !post.isFavorited}"
-                                th:onclick="|addFavorite(${post.pid})|">
+                                th:onclick="'addFavorite('+${post.pid}+')'">
                             <span class="glyphicon glyphicon-star-empty"></span> 收藏
                         </button>
                         <button type="button" class="btn btn-danger btn-xs favorite-btn favorited"
                                 th:if="${post.isFavorited!=null and post.isFavorited}"
-                                th:onclick="|removeFavorite(${post.pid})|">
+                                th:onclick="'removeFavorite('+${post.pid}+')'">
                             <span class="glyphicon glyphicon-star"></span> 取消收藏
                         </button>
                     </div>

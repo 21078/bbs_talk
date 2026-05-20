@@ -73,4 +73,10 @@ public interface PostService {
      * @param isSticky 置顶状态：0取消置顶，1置顶
      */
     void toggleSticky(Long pid, Integer isSticky);
+
+    /**
+     * 根据用户ID删除该用户的所有帖子
+     * @param uid 用户ID
+     */
+    void deletePostsByUserId(Long uid);
 }

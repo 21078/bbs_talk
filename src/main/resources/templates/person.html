@@ -114,6 +114,44 @@
             </div>
         </div>
 
+        <!-- 账户注销面板 - 仅普通用户可见 -->
+        <div class="row" style="margin-top: 30px;" th:if="${session.user.level == 1}">
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="headingThree">
+                    <h4 class="panel-title">
+                        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree"
+                           aria-expanded="false"
+                           aria-controls="collapseThree">
+                            账户注销
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <h4 class="text-danger">危险操作</h4>
+                                <p class="text-warning">注销账户将永久删除您的所有数据，包括发布的帖子、回复等，此操作不可恢复！</p>
+                                <div style="width:500px;margin: 0 auto;">
+                                    <form action="/deleteAccount.do" method="post" id="deleteAccountForm"
+                                          onsubmit="return confirm('确定要注销账户吗？此操作将删除您的所有数据且不可恢复！');">
+                                        <div class="alert alert-danger">
+                                            <strong>警告：</strong> 注销后所有数据将被永久删除
+                                        </div>
+                                        <div align="center">
+                                            <button type="submit" class="btn btn-danger">
+                                                注销账户
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
 </div>

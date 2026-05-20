@@ -7,7 +7,7 @@
 
     <insert id="save" parameterType="Post">
         INSERT INTO post
-        VALUES (null,#{ptitle},#{pbody},#{psendtime},#{lastreplytime},#{user.uid},#{category},#{isSticky},#{prize})
+        VALUES (null,#{ptitle},#{pbody},#{psendtime},#{lastreplytime},#{user.uid},#{category},#{isSticky},#{prize},#{path})
     </insert>
 
     <resultMap type="Post" id="PostAndUser">
@@ -22,11 +22,12 @@
         <result property="category" column="category"/>
         <result property="isSticky" column="is_sticky"/>
         <result property="prize" column="prize"/>
+        <result property="path" column="path"/>
     </resultMap>
 
 
     <select id="findAllPost" resultMap="PostAndUser">
-        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,COUNT(f.fid) as favorite_count,p.category,p.is_sticky,p.prize
+        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,COUNT(f.fid) as favorite_count,p.category,p.is_sticky,p.prize,p.path
         FROM post p LEFT JOIN user u on p.uid = u.uid
         LEFT JOIN favorite f on p.pid = f.pid
         GROUP BY p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,p.category,p.is_sticky,p.prize
@@ -35,11 +36,11 @@
 
 
     <select id="findPostById" resultMap="PostAndUser" parameterType="Long">
-        SELECT p.pid,p.ptitle,p.pbody,p.psendtime,u.uid,u.uname,COUNT(f.fid) as favorite_count,p.category,p.is_sticky,p.prize
+        SELECT p.pid,p.ptitle,p.pbody,p.psendtime,u.uid,u.uname,COUNT(f.fid) as favorite_count,p.category,p.is_sticky,p.prize,p.path
         FROM post p LEFT JOIN user u on p.uid = u.uid
         LEFT JOIN favorite f on p.pid = f.pid
         WHERE p.pid=#{value}
-        GROUP BY p.pid,p.ptitle,p.pbody,p.psendtime,u.uid,u.uname,p.category,p.is_sticky,p.prize
+        GROUP BY p.pid,p.ptitle,p.pbody,p.psendtime,u.uid,u.uname,p.category,p.is_sticky,p.prize,p.path
     </select>
 
     <update id="updatePostLastReplyTime" parameterType="Post">
@@ -59,7 +60,7 @@
     </parameterMap>
 
     <select id="findPostByPage" parameterMap="StartPageAndshowPage" resultMap="PostAndUser">
-        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,COUNT(f.fid) as favorite_count,p.category,p.is_sticky,p.prize
+        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,COUNT(f.fid) as favorite_count,p.category,p.is_sticky,p.prize,p.path
         FROM post p LEFT JOIN user u on p.uid = u.uid
         LEFT JOIN favorite f on p.pid = f.pid
         GROUP BY p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,p.category,p.is_sticky,p.prize
@@ -73,7 +74,7 @@
     </select>
 
     <select id="findPostByPageAndCategory" parameterType="Map" resultMap="PostAndUser">
-        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,COUNT(f.fid) as favorite_count,p.category,p.is_sticky,p.prize
+        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,COUNT(f.fid) as favorite_count,p.category,p.is_sticky,p.prize,p.path
         FROM post p LEFT JOIN user u on p.uid = u.uid
         LEFT JOIN favorite f on p.pid = f.pid
         WHERE p.category = #{category}
@@ -89,7 +90,7 @@
     </select>
 
     <select id="findPostsByUserId" resultMap="PostAndUser" parameterType="Long">
-        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,COUNT(f.fid) as favorite_count,p.category,p.is_sticky,p.prize
+        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,COUNT(f.fid) as favorite_count,p.category,p.is_sticky,p.prize,p.path
         FROM post p LEFT JOIN user u on p.uid = u.uid
         LEFT JOIN favorite f on p.pid = f.pid
         WHERE p.uid = #{value}
@@ -99,7 +100,7 @@
 
     <update id="updatePostContent" parameterType="Post">
         UPDATE post
-        SET pbody = #{pbody}
+        SET pbody = #{pbody}, path = #{path}
         WHERE pid = #{pid} AND uid = #{user.uid}
     </update>
 
@@ -115,5 +116,11 @@
         FROM post
         WHERE pid = #{pid} AND uid = #{uid}
     </select>
+
+    <!-- 根据用户ID删除该用户的所有帖子 -->
+    <delete id="deletePostsByUserId" parameterType="Long">
+        DELETE FROM post
+        WHERE uid = #{value}
+    </delete>
 
 </mapper>

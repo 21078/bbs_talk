@@ -136,4 +136,13 @@ public class ReplyServiceImpl implements ReplyService {
             return "操作参数错误";
         }
     }
+
+    /**
+     * 根据用户ID删除该用户的所有回复
+     * @param uid 用户ID
+     */
+    @Override
+    public void deleteRepliesByUserId(Long uid) {
+        replyMapper.deleteRepliesByUserId(uid);
+    }
 }

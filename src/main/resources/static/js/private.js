@@ -118,6 +118,7 @@ $(function ()
         var pbody = $("#sendPostBody").val();
         var category = $("#sendPostCategory").val();
         var prize = $("#sendPostPrize").val();
+        var coverImage = $("#coverImage")[0].files[0];
 
         if ((ptitle.length > 0 && ptitle.length <= 30) && (pbody.length > 0 && pbody.length < 1000) && category !== "")
         {
@@ -129,18 +130,45 @@ $(function ()
                 }
             }
 
-            var data = {"ptitle": ptitle, "pbody": pbody, "category": category};
-            if (prize) {
-                data.prize = parseInt(prize);
+            // 验证图片文件大小（最大5MB）
+            if (coverImage && coverImage.size > 5 * 1024 * 1024) {
+                alert("图片大小不能超过5MB");
+                return;
             }
 
-            $.post("/sendPost.do", data, function (data)
-            {
-                alert(data);
-                if (data == "发送成功")
-                    location.reload();
-                else if (data == "你已被禁言")
-                    return false;
+            // 验证图片文件类型（只允许PNG和JPG）
+            if (coverImage && !coverImage.type.match('image/(jpeg|jpg|png)')) {
+                alert("只支持JPG和PNG格式的图片");
+                return;
+            }
+
+            var formData = new FormData();
+            formData.append("ptitle", ptitle);
+            formData.append("pbody", pbody);
+            formData.append("category", category);
+            if (prize) {
+                formData.append("prize", parseInt(prize));
+            }
+            if (coverImage) {
+                formData.append("coverImage", coverImage);
+            }
+
+            $.ajax({
+                url: "/sendPost.do",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(data) {
+                    alert(data);
+                    if (data == "发送成功")
+                        location.reload();
+                    else if (data == "你已被禁言")
+                        return false;
+                },
+                error: function(xhr, status, error) {
+                    alert("发帖失败：" + (xhr.responseText || "网络错误"));
+                }
             });
         }
         else
@@ -287,6 +315,26 @@ function toggleReplySticky(rid, pid, action)
         })
         .fail(function(xhr, status, error) {
             alert("操作失败：" + (xhr.responseText || "网络错误"));
+        });
+    }
+}
+
+function adminDeleteUser(uid)
+{
+    console.log("adminDeleteUser called with uid:", uid);
+    if (confirm('确定要注销这个用户吗？此操作将删除该用户的所有数据且不可恢复！')) {
+        console.log("Sending POST request to /admin/deleteUser/" + uid);
+        $.post("/admin/deleteUser/" + uid)
+        .done(function(data) {
+            console.log("Response received:", data);
+            alert(data);
+            if (data.indexOf("成功") > -1) {
+                location.reload();
+            }
+        })
+        .fail(function(xhr, status, error) {
+            console.error("Request failed:", status, error, xhr.responseText);
+            alert("注销失败：" + (xhr.responseText || "网络错误"));
         });
     }
 }

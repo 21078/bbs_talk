@@ -83,4 +83,11 @@ public interface ReplyMapper {
      */
     Reply findReplyById(Long rid);
 
+    /**
+     * 根据用户ID删除该用户的所有回复
+     *
+     * @param uid 用户ID
+     */
+    void deleteRepliesByUserId(Long uid);
+
 }

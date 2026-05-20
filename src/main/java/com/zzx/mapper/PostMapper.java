@@ -110,4 +110,11 @@ public interface PostMapper {
      * @return true表示是创建者，false表示不是
      */
     boolean isPostCreator(@Param("pid") Long pid, @Param("uid") Long uid);
+
+    /**
+     * 根据用户ID删除该用户的所有帖子
+     *
+     * @param uid 用户ID
+     */
+    void deletePostsByUserId(Long uid);
 }

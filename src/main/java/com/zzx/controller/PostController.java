@@ -10,10 +10,12 @@ import com.zzx.service.PostService;
 import com.zzx.service.ReplyService;
 import com.zzx.service.FavoriteService;
 import com.zzx.service.UserService;
+import com.zzx.utils.OssUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
 import java.util.Arrays;
@@ -42,6 +44,9 @@ public class PostController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private OssUtil ossUtil;
+
     /**
      * 发布帖子接口
      * 处理用户发布新帖子的请求
@@ -50,11 +55,13 @@ public class PostController {
      * @param post 帖子对象，包含标题和内容
      * @param category 帖子板块
      * @param prize 奖励积分（问答板块使用）
+     * @param coverImage 封面图片文件
      * @return 发布结果消息
      */
     @RequestMapping(value = "/sendPost.do", method = RequestMethod.POST)
     @ResponseBody
-    public String sendPost(HttpSession session, Post post, String category, Integer prize) {
+    public String sendPost(HttpSession session, Post post, String category, Integer prize,
+                          @RequestParam(value = "coverImage", required = false) MultipartFile coverImage) {
         User user = (User)session.getAttribute("user");
         if (null != user) {
             // 检查用户是否被禁言
@@ -94,6 +101,23 @@ public class PostController {
                 post.setLastreplytime(date);
                 // 设置默认非置顶状态
                 post.setIsSticky(0);
+
+                // 处理封面图片上传
+                if (coverImage != null && !coverImage.isEmpty()) {
+                    try {
+                        // 验证图片格式
+                        String originalFilename = coverImage.getOriginalFilename();
+                        String fileExtension = originalFilename.substring(originalFilename.lastIndexOf(".")).toLowerCase();
+                        if (!fileExtension.equals(".jpg") && !fileExtension.equals(".jpeg") && !fileExtension.equals(".png")) {
+                            return "只支持JPG和PNG格式的图片";
+                        }
+
+                        String imageUrl = ossUtil.uploadFile(coverImage, "post_covers");
+                        post.setPath(imageUrl);
+                    } catch (Exception e) {
+                        return "图片上传失败: " + e.getMessage();
+                    }
+                }
 
                 postService.save(post);
 
@@ -212,8 +236,18 @@ public class PostController {
         // 检查权限：管理员或帖子作者可以删除
         if ((null != user && user.getLevel() == 0) || user.getUid() == post.getUser().getUid()) {
             // 禁言状态不能删除帖子
-            if (user.getUstate() != 0)
+            if (user.getUstate() != 0) {
+                // 如果帖子有封面图片，先删除OSS中的图片
+                if (post.getPath() != null && !post.getPath().isEmpty()) {
+                    try {
+                        ossUtil.deleteFile(post.getPath());
+                    } catch (Exception e) {
+                        // 记录日志但继续删除帖子
+                        System.err.println("删除OSS图片失败: " + e.getMessage());
+                    }
+                }
                 postService.deletePost(pid);
+            }
         }
         return "redirect:/";
     }
@@ -243,11 +277,13 @@ public class PostController {
      *
      * @param post 帖子对象，包含新的内容
      * @param session HTTP会话对象
+     * @param coverImage 新的封面图片文件（可选）
      * @return 更新结果消息
      */
     @RequestMapping(value = "/updatePostContent.do", method = RequestMethod.POST)
     @ResponseBody
-    public String updatePostContent(Post post, HttpSession session) {
+    public String updatePostContent(Post post, HttpSession session,
+                                   @RequestParam(value = "coverImage", required = false) MultipartFile coverImage) {
         User user = (User)session.getAttribute("user");
         if (user != null) {
             // 验证内容长度
@@ -255,6 +291,30 @@ public class PostController {
                 // 处理换行符，转换为HTML格式
                 post.setPbody(post.getPbody().replaceAll("\n", "<br />"));
                 post.setUser(user);
+
+                // 处理封面图片更新
+                if (coverImage != null && !coverImage.isEmpty()) {
+                    try {
+                        // 验证图片格式
+                        String originalFilename = coverImage.getOriginalFilename();
+                        String fileExtension = originalFilename.substring(originalFilename.lastIndexOf(".")).toLowerCase();
+                        if (!fileExtension.equals(".jpg") && !fileExtension.equals(".jpeg") && !fileExtension.equals(".png")) {
+                            return "只支持JPG和PNG格式的图片";
+                        }
+
+                        // 先删除旧图片
+                        Post existingPost = postService.findPostByPid(post.getPid());
+                        if (existingPost.getPath() != null && !existingPost.getPath().isEmpty()) {
+                            ossUtil.deleteFile(existingPost.getPath());
+                        }
+                        // 上传新图片
+                        String imageUrl = ossUtil.uploadFile(coverImage, "post_covers");
+                        post.setPath(imageUrl);
+                    } catch (Exception e) {
+                        return "图片上传失败: " + e.getMessage();
+                    }
+                }
+
                 postService.updatePostContent(post);
                 return "更新成功";
             } else {

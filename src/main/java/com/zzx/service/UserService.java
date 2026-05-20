@@ -76,4 +76,11 @@ public interface UserService {
      * @param score 要添加的积分数
      */
     void addUserScore(Integer uid, Integer score);
+
+    /**
+     * 删除用户及其相关数据
+     *
+     * @param uid 用户ID
+     */
+    void deleteUser(Integer uid);
 }

@@ -50,7 +50,7 @@
                     </div>
                     <div class="col-xs-1">
                         <button type="button" class="btn btn-danger btn-xs favorite-btn"
-                                th:onclick="|removeFavorite(${favorite.post.pid})|">
+                                th:onclick="'removeFavorite('+${favorite.post.pid}+')'">
                             <span class="glyphicon glyphicon-star"></span> 取消收藏
                         </button>
                     </div>

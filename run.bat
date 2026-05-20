@@ -33,7 +33,7 @@ if %errorlevel% neq 0 (
 
 echo [1/4] Checking MySQL service...
 REM Check if MySQL is running
-mysql -u root -p123456 -e "SELECT 1;" > nul 2>&1
+mysql -u root -pyour_password -e "SELECT 1;" > nul 2>&1
 if %errorlevel% neq 0 (
     echo ERROR: MySQL is not accessible
     echo Please ensure:
@@ -52,7 +52,7 @@ echo.
 echo [2/4] Updating database...
 if exist "bbs.sql" (
     echo Found bbs.sql, updating database...
-    mysql -u root -p123456 --default-character-set=utf8mb4 < bbs.sql
+    mysql -u root -pyour_password --default-character-set=utf8mb4 < bbs.sql
     if %errorlevel% equ 0 (
         echo Database update: SUCCESS
     ) else (
@@ -100,8 +100,8 @@ echo ======================================
 echo.
 echo Access the application at: http://localhost:8080
 echo Default accounts:
-echo - Admin: admin / 123456
-echo - User: u1, u2, u3 / 123456
+echo - Admin: admin / your_password
+echo - User: u1, u2, u3 / your_password
 echo.
 echo Press Ctrl+C to stop the application
 echo To restart: close this window and run run.bat again

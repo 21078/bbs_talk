@@ -2,9 +2,10 @@ package com.zzx.service.Impl;
 
 import com.zzx.exception.MessageException;
 import com.zzx.mapper.UserMapper;
-
 import com.zzx.model.User;
 import com.zzx.service.UserService;
+import com.zzx.service.PostService;
+import com.zzx.service.ReplyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,12 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private PostService postService;
+
+    @Autowired
+    private ReplyService replyService;
 
 
     /**
@@ -164,6 +171,25 @@ public class UserServiceImpl implements UserService {
     @Override
     public void addUserScore(Integer uid, Integer score) {
         userMapper.addUserScore(uid, score);
+    }
+
+    /**
+     * 删除用户及其所有相关数据
+     * 包括用户的所有帖子、回复，最后删除用户账户
+     *
+     * @param uid 用户ID
+     */
+    @Override
+    @Transactional
+    public void deleteUser(Integer uid) {
+        // 先删除用户的所有回复
+        replyService.deleteRepliesByUserId(uid.longValue());
+
+        // 再删除用户的所有帖子
+        postService.deletePostsByUserId(uid.longValue());
+
+        // 最后删除用户账户
+        userMapper.deleteUser(uid);
     }
 
 

@@ -87,4 +87,10 @@
         WHERE rid = #{value}
     </select>
 
+    <!-- 根据用户ID删除该用户的所有回复 -->
+    <delete id="deleteRepliesByUserId" parameterType="Long">
+        DELETE FROM reply
+        WHERE uid = #{value}
+    </delete>
+
 </mapper>

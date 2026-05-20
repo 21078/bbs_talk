@@ -20,6 +20,7 @@ public class Post {
     private String category; // 帖子板块
     private Integer isSticky; // 是否置顶：0否，1是
     private Integer prize; // 奖励积分，问答板块使用
+    private String path; // 封面图片路径
 
     public Date getLastreplytime() {
         return lastreplytime;
@@ -115,5 +116,13 @@ public class Post {
 
     public void setPrize(Integer prize) {
         this.prize = prize;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 }

@@ -234,4 +234,40 @@ public class UserController {
         return "redirect:/person.do";
     }
 
+    /**
+     * 注销用户账户接口
+     * 删除用户及其所有相关数据（帖子、回复），然后重定向到首页
+     * 只有普通用户可以注销账户，管理员不能注销
+     *
+     * @param model Spring MVC模型对象
+     * @param session HTTP会话对象
+     * @return 操作结果页面
+     */
+    @PostMapping("/deleteAccount.do")
+    public String deleteAccount(Model model, HttpSession session) {
+        User user = (User)session.getAttribute("user");
+        if (user == null)
+            return "redirect:/";
+
+        // 检查是否为管理员，管理员不能注销
+        if (user.getLevel() == 0) {
+            model.addAttribute("message", "管理员账户不能注销");
+            return "error";
+        }
+
+        try {
+            // 删除用户及其所有相关数据
+            userService.deleteUser(user.getUid());
+
+            // 清除session
+            session.removeAttribute("user");
+
+            // 注销成功，重定向到首页
+            return "redirect:/";
+        } catch (Exception e) {
+            model.addAttribute("message", "注销失败：" + e.getMessage());
+            return "error";
+        }
+    }
+
 }

@@ -50,8 +50,17 @@
                             <td th:text="${#dates.format(user.ucreatetime,'yyyy-MM-dd HH:mm:ss')}">2019-02-05-08:00:00
                             </td>
                             <td th:text="${user.ustate== 1}?|正常|:|禁言|">正常</td>
-                            <td><a href="#" th:text="${user.level== 1}?(${user.ustate== 1}?|禁言|:|解禁|):|&nbsp;|"
-                                   th:onclick="${user.ustate== 1}?|banUser(${user.uid})|:|unbanUser(${user.uid})|">禁言</a>
+                            <td>
+                                <span th:if="${user.level == 1}">
+                                    <a href="#" th:text="${user.ustate== 1}?'禁言':'解禁'"
+                                       th:onclick="${user.ustate== 1}?'banUser('+${user.uid}+')':'unbanUser('+${user.uid}+')'">禁言</a>
+                                    |
+                                    <a href="#" th:onclick="'adminDeleteUser('+${user.uid}+')'"
+                                       class="text-danger">注销</a>
+                                </span>
+                                <span th:if="${user.level != 1}">
+                                    &nbsp;
+                                </span>
                             </td>
                         </tr>
                         </tbody>

@@ -51,4 +51,11 @@ public interface ReplyService {
      * @return 操作结果消息
      */
     String toggleReplySticky(Long rid, Long uid, Long pid, String action);
+
+    /**
+     * 根据用户ID删除该用户的所有回复
+     *
+     * @param uid 用户ID
+     */
+    void deleteRepliesByUserId(Long uid);
 }

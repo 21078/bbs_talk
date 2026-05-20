@@ -193,4 +193,13 @@ public class PostServiceImpl implements PostService {
     public void toggleSticky(Long pid, Integer isSticky) {
         postMapper.toggleSticky(pid, isSticky);
     }
+
+    /**
+     * 根据用户ID删除该用户的所有帖子
+     * @param uid 用户ID
+     */
+    @Override
+    public void deletePostsByUserId(Long uid) {
+        postMapper.deletePostsByUserId(uid);
+    }
 }

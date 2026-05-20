@@ -98,11 +98,20 @@
                 <input type="hidden" th:id="|editPostId${post.pid}" th:value="${post.pid}"/>
                 <textarea style="height: 150px;" class="form-control" th:id="|editPostContent${post.pid}"
                           th:text="${post.pbody.replace('<br />', '&#10;')}"></textarea>
+                <div style="margin-top: 10px;">
+                    <label>封面图片（可选）：</label>
+                    <div th:if="${post.path != null and !post.path.isEmpty()}" style="margin-bottom: 10px;">
+                        <img th:src="${post.path}" alt="当前封面" style="max-width: 200px; height: auto; border-radius: 4px;">
+                        <p class="text-muted small">当前封面图片</p>
+                    </div>
+                    <input type="file" class="form-control-file" th:id="|editCoverImage${post.pid}" accept="image/jpeg,image/jpg,image/png">
+                    <small class="form-text text-muted">只支持JPG、PNG格式，建议尺寸800x600。留空则不修改封面。</small>
+                </div>
             </div>
             <div class="modal-footer">
                 <button data-dismiss="modal" class="btn btn-default" type="button">关闭</button>
                 <button class="btn btn-primary" type="button"
-                        th:onclick="|updatePostContent(${post.pid})|">保存修改</button>
+                        th:onclick="'updatePostContent('+${post.pid}+')'">保存修改</button>
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
@@ -112,12 +121,42 @@
     /*<![CDATA[*/
     function updatePostContent(pid) {
         var pbody = $('#editPostContent' + pid).val();
+        var coverImage = $('#editCoverImage' + pid)[0].files[0];
+
         if (pbody.length > 0 && pbody.length < 1000) {
-            var data = {"pbody": pbody, "pid": pid};
-            $.post("/updatePostContent.do", data, function (data) {
-                alert(data);
-                if (data == "更新成功")
-                    location.reload();
+            // 验证图片文件大小（最大5MB）
+            if (coverImage && coverImage.size > 5 * 1024 * 1024) {
+                alert("图片大小不能超过5MB");
+                return;
+            }
+
+            // 验证图片文件类型
+            if (coverImage && !coverImage.type.match('image.*')) {
+                alert("请上传图片文件");
+                return;
+            }
+
+            var formData = new FormData();
+            formData.append("pbody", pbody);
+            formData.append("pid", pid);
+            if (coverImage) {
+                formData.append("coverImage", coverImage);
+            }
+
+            $.ajax({
+                url: "/updatePostContent.do",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(data) {
+                    alert(data);
+                    if (data == "更新成功")
+                        location.reload();
+                },
+                error: function(xhr, status, error) {
+                    alert("更新失败：" + (xhr.responseText || "网络错误"));
+                }
             });
         } else {
             alert("内容长度不符合要求");
