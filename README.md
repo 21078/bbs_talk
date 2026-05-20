@@ -215,7 +215,7 @@ A: 在 `application-dev.yml` 中修改阿里云OSS的相关配置参数。
 
 ## 作者
 
-zzx
+21078
 
 ## 版本
 
