@@ -1,6 +1,6 @@
 # 09老师说的都队
 
-### 唐浩 赵文熙 陈闽 彭浩 樊世奇
+### 唐浩 赵文熙 陈闽 彭浩  樊世奇
 
 <p align="center">
   <img src="./src/main/resources/image/work_harder.jpg" alt="Work Harder">
