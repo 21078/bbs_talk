@@ -7,7 +7,7 @@
 
     <insert id="save" parameterType="User">
         INSERT INTO user
-        VALUES (null,#{uname},#{upwd},#{ustate},#{ucreatetime},#{level},#{phone},#{career},#{address},0);
+        VALUES (null,#{uname},#{upwd},#{ustate},#{ucreatetime},#{level},#{phone},#{career},#{address},100);
     </insert>
 
 
