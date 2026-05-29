@@ -1,0 +1,9 @@
+### dev 开发配置
+### pro 线上配置
+spring:
+  profiles:
+    active: dev
+    
+server:
+  forward-headers-strategy: FRAMEWORK
+  

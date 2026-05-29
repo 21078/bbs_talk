@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <title>我的收藏</title>
+
+    <script th:src="@{../js/jquery/2.0.0/jquery.min.js}" src="js/jquery/2.0.0/jquery.min.js"></script>
+    <link th:href="@{../css/bootstrap/3.3.6/bootstrap.min.css}" href="css/bootstrap/3.3.6/bootstrap.min.css" rel="stylesheet"/>
+    <script th:src="@{../js/bootstrap/3.3.6/bootstrap.min.js}" src="js/bootstrap/3.3.6/bootstrap.min.js"></script>
+
+    <script type="text/javascript" th:src="@{../js/private.js}"></script>
+    <link th:href="@{../css/tx.css}" rel="stylesheet"/>
+
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script type="text/javascript" th:src="@{../js/triangle-bg.js}"></script>
+
+
+<div class="container">
+    <div th:replace="head::header"></div>
+
+    <h2>我的收藏</h2>
+
+    <!-- 板块筛选 -->
+    <div class="row" style="margin: 20px 0;">
+        <div class="col-xs-12">
+            <form class="form-inline" method="get" action="/favorite/list">
+                <div class="form-group">
+                    <label for="categoryFilter">板块筛选：</label>
+                    <select class="form-control" id="categoryFilter" name="category" onchange="this.form.submit()">
+                        <option value="">全部板块</option>
+                        <option value="娱乐" th:selected="${currentCategory == '娱乐'}">娱乐</option>
+                        <option value="技术" th:selected="${currentCategory == '技术'}">技术</option>
+                        <option value="美食" th:selected="${currentCategory == '美食'}">美食</option>
+                        <option value="旅游" th:selected="${currentCategory == '旅游'}">旅游</option>
+                        <option value="问题" th:selected="${currentCategory == '问题'}">问题</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div>
+        <div class="row" th:each="post:${page.modelList}">
+            <div class="col-xs-12">
+                <div class="panel panel-info favorite-list-item">
+                    <div class="panel-heading" style="font-size: 18px;font-weight: bolder">
+                        <span th:text="${post.ptitle}">帖子标题</span>
+                        <span th:if="${post.isSticky != null and post.isSticky == 1}" class="label label-danger pull-right" style="margin-left: 5px;">
+                            <span class="glyphicon glyphicon-pushpin"></span> 置顶
+                        </span>
+                        <span th:switch="${post.category}" style="margin-left: 10px;">
+                            <span th:case="'娱乐'" class="label label-success pull-right" th:text="${post.category}">娱乐</span>
+                            <span th:case="'技术'" class="label label-primary pull-right" th:text="${post.category}">技术</span>
+                            <span th:case="'美食'" class="label label-warning pull-right" th:text="${post.category}">美食</span>
+                            <span th:case="'旅游'" class="label label-info pull-right" th:text="${post.category}">旅游</span>
+                            <span th:case="'问题'" class="label label-danger pull-right" th:text="${post.category}">问题</span>
+                            <span th:case="*" class="label label-default pull-right" th:text="${post.category}">其他</span>
+                        </span>
+                    </div>
+                    <div class="panel-body" style="height: 95px;display: -webkit-box;-webkit-box-orient: vertical;-webkit-line-clamp: 4;overflow: hidden;">
+                        <div class="row">
+                            <div class="col-xs-3" th:if="${post.path != null and !post.path.isEmpty()}">
+                                <img th:src="${post.path}" alt="封面图片" style="width: 100%; height: 80px; object-fit: cover; border-radius: 4px;"
+                                     onerror="this.src='https://via.placeholder.com/150x80/e0e0e0/666?text=No+Image';">
+                            </div>
+                            <div th:classappend="${post.path != null and !post.path.isEmpty()} ? 'col-xs-9' : 'col-xs-12'">
+                                <div th:utext="${post.pbody}">
+                                    帖子内容<br/>
+                                    帖子内容<br/>
+                                    帖子内容<br/>
+                                    帖子内容<br/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-footer" style="height: 40px;">
+                        <div class="col-xs-2">
+                            <div style="display: flex; align-items: center;">
+                                <img th:src="${post.user.path} ?: 'https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/default_face.jpg'"
+                                     style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; margin-right: 5px;"
+                                     onerror="this.src='https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/default_face.jpg'">
+                                <span class="text-info" th:text="|发帖用户:${post.user.uname}|">发帖用户:xxx</span>
+                            </div>
+                        </div>
+                        <div class="col-xs-3">
+                            <span class="text-primary"
+                                  th:text="${post.lastreplytime==null}?|发帖时间:${#dates.format(post.psendtime,'yyyy-MM-dd HH:mm:ss')}|:|最后回复时间:${#dates.format(post.lastreplytime,'yyyy-MM-dd HH:mm:ss')}|">最后回复时间:2019-2-5-08:00:00</span>
+                        </div>
+                        <div class="col-xs-2">
+                            <span class="badge" th:text="|回复数:${post.replyCount}|">回复数:42</span>
+                        </div>
+                        <div class="col-xs-1">
+                            <span class="badge" th:text="|收藏:${post.favoriteCount}|">收藏:0</span>
+                        </div>
+                        <div class="col-xs-1">
+                            <a th:href="|/post/${post.pid}.html|">
+                                <button type="button" class="btn btn-primary btn-xs">查看</button>
+                            </a>
+                        </div>
+                        <div class="col-xs-2">
+                            <button type="button" class="btn btn-danger btn-xs favorite-btn"
+                                    th:onclick="'removeFavorite('+${post.pid}+')'">
+                                <span class="glyphicon glyphicon-star"></span> 取消收藏
+                            </button>
+                        </div>
+                        <div class="col-xs-1" th:if="${session.user!=null}?(${session.user.uid == post.user.uid}?true:${session.user.level==0}):false">
+                            <a th:href="|/delete/${post.pid}|" onclick="return confirm('确定要删除这个帖子吗？删除后无法恢复！');">
+                                <button type="button" class="btn btn-primary btn-xs">删除</button>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" th:if="${page.modelList == null || #lists.isEmpty(page.modelList)}">
+            <div class="col-xs-12">
+                <div class="alert alert-info">
+                    <p>您还没有收藏任何帖子。</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+        <div class="col-xs-12">
+            <nav>
+                <ul class="pager">
+                    <li class="previous" th:if="${page.currentPage!=1}">
+                        <a th:href="${currentCategory != null && !currentCategory.isEmpty()} ?
+                            |/favorite/list?page=${page.currentPage-1}&category=${currentCategory}| :
+                            |/favorite/list?page=${page.currentPage-1}|">
+                            <span aria-hidden="true">&larr;</span> 上一页
+                        </a>
+                    </li>
+                    <li class="text-primary" th:text="|当前第${page.currentPage}页，共${page.pageTotal}页|">当前第1页，共4页</li>
+                    <li class="next" th:if="${page.currentPage!=page.pageTotal}">
+                        <a th:href="${currentCategory != null && !currentCategory.isEmpty()} ?
+                            |/favorite/list?page=${page.currentPage+1}&category=${currentCategory}| :
+                            |/favorite/list?page=${page.currentPage+1}|">
+                            下一页<span aria-hidden="true">&rarr;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

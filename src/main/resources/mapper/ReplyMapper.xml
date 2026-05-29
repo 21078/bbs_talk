@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zzx.mapper.ReplyMapper">
+
+    <select id="getReplyCountByPid" resultType="Long" parameterType="Long">
+        SELECT COUNT(1)
+        FROM reply
+        WHERE pid =#{value}
+    </select>
+
+
+    <resultMap type="Reply" id="ReplyAndUser">
+        <!-- 定义主键 ,非常重要。如果是多个字段,则定义多个id -->
+        <!-- property：主键在pojo中的属性名 -->
+        <!-- column：主键在数据库中的列名 -->
+        <id property="rid" column="rid"/>
+
+        <!-- 定义普通属性 -->
+
+        <result property="replymessage" column="replymessage"/>
+        <result property="replytime" column="replytime"/>
+        <result property="isSticky" column="is_sticky"/>
+        <result property="user.uid" column="uid"/>
+        <result property="user.uname" column="uname"/>
+        <result property="user.path" column="user_path"/>
+
+    </resultMap>
+
+    <select id="findReplyByPid" resultMap="ReplyAndUser" parameterType="Long">
+        SELECT u.uid,u.uname,u.path as user_path,replymessage,replytime,rid,is_sticky
+        FROM reply r LEFT JOIN user u ON r.uid = u.uid
+        WHERE pid = #{value}
+        ORDER BY is_sticky DESC, replytime ASC
+    </select>
+
+
+    <insert id="saveReply" parameterType="Reply">
+        INSERT INTO reply
+        VALUES (null,#{post.pid},#{user.uid},#{replymessage},#{replytime},0)
+    </insert>
+
+
+    <delete id="deleteReply" parameterType="Long">
+        DELETE FROM reply
+        WHERE pid = #{value}
+    </delete>
+
+    <parameterMap id="PidStartPageShowPage" type="Map">
+        <parameter property="pid" />
+        <parameter property="startPage" /><!--开始页码 -->
+        <parameter property="showPage" /><!-- 显示条数 -->
+    </parameterMap>
+
+    <select id="findReplyByPidAndPage" resultMap="ReplyAndUser" parameterMap="PidStartPageShowPage">
+        SELECT u.uid,u.uname,u.path as user_path,replymessage,replytime,rid,is_sticky
+        FROM reply r LEFT JOIN user u ON r.uid = u.uid
+        WHERE pid = #{pid}
+        ORDER BY is_sticky DESC, replytime ASC
+        LIMIT #{startPage},#{showPage}
+    </select>
+    
+    <delete id="deleteReplyByRid" parameterType="Long">
+        DELETE FROM reply
+        WHERE rid = #{value}
+    </delete>
+
+    <!-- 切换回复置顶状态 -->
+    <update id="toggleReplySticky" parameterType="map">
+        UPDATE reply
+        SET is_sticky = #{isSticky}
+        WHERE rid = #{rid}
+    </update>
+
+    <!-- 清除帖子其他回复的置顶状态 -->
+    <update id="clearOtherStickyReplies" parameterType="map">
+        UPDATE reply
+        SET is_sticky = 0
+        WHERE pid = #{pid} AND rid != #{excludeRid} AND is_sticky = 1
+    </update>
+
+    <!-- 根据回复ID查询回复 -->
+    <select id="findReplyById" parameterType="Long" resultMap="ReplyAndUser">
+        SELECT u.uid,u.uname,u.path as user_path,replymessage,replytime,rid,is_sticky
+        FROM reply r LEFT JOIN user u ON r.uid = u.uid
+        WHERE rid = #{value}
+    </select>
+
+    <!-- 根据用户ID删除该用户的所有回复 -->
+    <delete id="deleteRepliesByUserId" parameterType="Long">
+        DELETE FROM reply
+        WHERE uid = #{value}
+    </delete>
+
+    <!-- 检查用户是否为回复的创建者 -->
+    <select id="isReplyCreator" parameterType="map" resultType="int">
+        SELECT COUNT(1)
+        FROM reply
+        WHERE rid = #{rid} AND uid = #{uid}
+    </select>
+
+    <!-- 检查用户是否为回复所属帖子的创建者 -->
+    <select id="isPostCreatorByReplyId" parameterType="map" resultType="int">
+        SELECT COUNT(1)
+        FROM reply r
+        INNER JOIN post p ON r.pid = p.pid
+        WHERE r.rid = #{rid} AND p.uid = #{uid}
+    </select>
+
+</mapper>

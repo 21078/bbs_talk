@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zzx.mapper.PostMapper">
+
+    <insert id="save" parameterType="Post">
+        INSERT INTO post
+        VALUES (null,#{ptitle},#{pbody},#{psendtime},#{lastreplytime},#{user.uid},#{category},#{isSticky},#{prize},#{path})
+    </insert>
+
+    <resultMap type="Post" id="PostAndUser">
+        <id property="pid" column="pid"/>
+        <result property="ptitle" column="ptitle"/>
+        <result property="pbody" column="pbody"/>
+        <result property="psendtime" column="psendtime"/>
+        <result property="lastreplytime" column="lastreplytime"/>
+        <result property="user.uid" column="uid"/>
+        <result property="user.uname" column="uname"/>
+        <result property="user.path" column="user_path"/>
+        <result property="favoriteCount" column="favorite_count"/>
+        <result property="category" column="category"/>
+        <result property="isSticky" column="is_sticky"/>
+        <result property="prize" column="prize"/>
+        <result property="path" column="path"/>
+    </resultMap>
+
+
+    <select id="findAllPost" resultMap="PostAndUser">
+        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,u.path as user_path,COUNT(f.fid) as favorite_count,p.category,p.is_sticky,p.prize,p.path
+        FROM post p LEFT JOIN user u on p.uid = u.uid
+        LEFT JOIN favorite f on p.pid = f.pid
+        GROUP BY p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,u.path,p.category,p.is_sticky,p.prize
+        ORDER BY p.is_sticky DESC, lastreplytime DESC
+    </select>
+
+
+    <select id="findPostById" resultMap="PostAndUser" parameterType="Long">
+        SELECT p.pid,p.ptitle,p.pbody,p.psendtime,u.uid,u.uname,u.path as user_path,COUNT(f.fid) as favorite_count,p.category,p.is_sticky,p.prize,p.path
+        FROM post p LEFT JOIN user u on p.uid = u.uid
+        LEFT JOIN favorite f on p.pid = f.pid
+        WHERE p.pid=#{value}
+        GROUP BY p.pid,p.ptitle,p.pbody,p.psendtime,u.uid,u.uname,u.path,p.category,p.is_sticky,p.prize,p.path
+    </select>
+
+    <update id="updatePostLastReplyTime" parameterType="Post">
+        UPDATE post
+        SET lastreplytime =#{lastreplytime}
+        WHERE pid = #{pid}
+    </update>
+
+    <delete id="deletePost" parameterType="Long">
+        DELETE FROM post
+        WHERE pid = #{value}
+    </delete>
+
+    <parameterMap id="StartPageAndshowPage" type="Map">
+        <parameter property="startPage" /><!--开始页码 -->
+        <parameter property="showPage" /><!-- 显示条数 -->
+    </parameterMap>
+
+    <select id="findPostByPage" parameterMap="StartPageAndshowPage" resultMap="PostAndUser">
+        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,u.path as user_path,COUNT(f.fid) as favorite_count,p.category,p.is_sticky,p.prize,p.path
+        FROM post p LEFT JOIN user u on p.uid = u.uid
+        LEFT JOIN favorite f on p.pid = f.pid
+        GROUP BY p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,u.path,p.category,p.is_sticky,p.prize
+        ORDER BY p.is_sticky DESC, lastreplytime DESC
+        LIMIT #{startPage},#{showPage}
+    </select>
+
+    <select id="getPostCount" resultType="Integer" >
+        SELECT COUNT(1)
+        FROM post
+    </select>
+
+    <select id="findPostByPageAndCategory" parameterType="Map" resultMap="PostAndUser">
+        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,u.path as user_path,COUNT(f.fid) as favorite_count,p.category,p.is_sticky,p.prize,p.path
+        FROM post p LEFT JOIN user u on p.uid = u.uid
+        LEFT JOIN favorite f on p.pid = f.pid
+        WHERE p.category = #{category}
+        GROUP BY p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,u.path,p.category,p.is_sticky,p.prize
+        ORDER BY p.is_sticky DESC, lastreplytime DESC
+        LIMIT #{startPage},#{showPage}
+    </select>
+
+    <select id="getPostCountByCategory" parameterType="String" resultType="Integer" >
+        SELECT COUNT(1)
+        FROM post
+        WHERE category = #{value}
+    </select>
+
+    <select id="findPostsByUserId" resultMap="PostAndUser" parameterType="Long">
+        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,u.path as user_path,COUNT(f.fid) as favorite_count,p.category,p.is_sticky,p.prize,p.path
+        FROM post p LEFT JOIN user u on p.uid = u.uid
+        LEFT JOIN favorite f on p.pid = f.pid
+        WHERE p.uid = #{value}
+        GROUP BY p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,u.path,p.category,p.is_sticky,p.prize
+        ORDER BY p.is_sticky DESC, psendtime DESC
+    </select>
+
+    <update id="updatePostContent" parameterType="Post">
+        UPDATE post
+        SET pbody = #{pbody}, path = #{path}
+        WHERE pid = #{pid} AND uid = #{user.uid}
+    </update>
+
+    <update id="toggleSticky">
+        UPDATE post
+        SET is_sticky = #{param2}
+        WHERE pid = #{param1}
+    </update>
+
+    <!-- 检查用户是否为帖子创建者 -->
+    <select id="isPostCreator" parameterType="Map" resultType="boolean">
+        SELECT COUNT(1) > 0
+        FROM post
+        WHERE pid = #{pid} AND uid = #{uid}
+    </select>
+
+    <!-- 根据用户ID删除该用户的所有帖子 -->
+    <delete id="deletePostsByUserId" parameterType="Long">
+        DELETE FROM post
+        WHERE uid = #{value}
+    </delete>
+
+</mapper>

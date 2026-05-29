@@ -1,0 +1,51 @@
+body {
+    background-color: #eee;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+canvas {
+    background-color: #eee;
+    display: block;
+    margin: 0 auto;
+    position: fixed;
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* 收藏相关样式 */
+.favorite-btn {
+    transition: all 0.3s ease;
+}
+
+.favorite-btn:hover {
+    transform: scale(1.05);
+}
+
+.favorite-count {
+    background-color: #f39c12;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+    margin-left: 5px;
+}
+
+.favorited {
+    background-color: #e74c3c;
+    border-color: #e74c3c;
+}
+
+.favorited:hover {
+    background-color: #c0392b;
+    border-color: #c0392b;
+}
+
+.favorite-list-item {
+    border-left: 3px solid #f39c12;
+    margin-bottom: 10px;
+}
+
+.favorite-time {
+    color: #7f8c8d;
+    font-size: 12px;
+}
