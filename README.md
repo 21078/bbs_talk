@@ -10,6 +10,17 @@
 
 一个基于Spring Boot + MyBatis的轻量级论坛系统，支持用户注册登录、发帖回复、收藏管理、积分系统等完整的论坛功能。
 
+## 预览
+
+<p align="center">
+  <img src="./src/main/resources/image/preview1.png" alt="Preview1">">
+</p>
+
+<p align="center">
+  <img src="./src/main/resources/image/preview2.png" alt="Preview2">">
+</p>
+
+
 ## 技术栈
 
 ### 后端技术
