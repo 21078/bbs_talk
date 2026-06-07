@@ -1,0 +1,491 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8" />
+    <title>快速入口</title>
+    <script
+      th:src="@{/js/jquery/2.0.0/jquery.min.js}"
+      src="/js/jquery/2.0.0/jquery.min.js"
+    ></script>
+    <link
+      th:href="@{/css/bootstrap/3.3.6/bootstrap.min.css}"
+      href="/css/bootstrap/3.3.6/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script
+      th:src="@{/js/bootstrap/3.3.6/bootstrap.min.js}"
+      src="/js/bootstrap/3.3.6/bootstrap.min.js"
+    ></script>
+    <link th:href="@{/css/tx.css}" rel="stylesheet" />
+    <script type="text/javascript" th:src="@{/js/private.js}"></script>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <script type="text/javascript" th:src="@{/js/triangle-bg.js}"></script>
+
+    <div class="container">
+      <div th:replace="head::header"></div>
+
+      <div class="row">
+        <div class="col-xs-12">
+          <div class="panel panel-info">
+            <div
+              class="panel-heading"
+              style="font-size: 18px; font-weight: bolder"
+            >
+              <span class="glyphicon glyphicon-music"></span> 音乐播放
+            </div>
+            <div class="panel-body" style="padding: 8px 15px">
+              <div style="display: flex; align-items: center; gap: 10px">
+                <img
+                  id="musicCover"
+                  src="https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/music.jpg"
+                  alt="音乐封面"
+                  style="
+                    width: 60px;
+                    height: 60px;
+                    cursor: pointer;
+                    border-radius: 4px;
+                    object-fit: cover;
+                    flex-shrink: 0;
+                  "
+                  onclick="togglePlay()"
+                />
+                <button
+                  id="playBtn"
+                  onclick="togglePlay()"
+                  style="
+                    width: 36px;
+                    height: 36px;
+                    border: none;
+                    border-radius: 50%;
+                    background: #5bc0de;
+                    color: #fff;
+                    font-size: 16px;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                  "
+                >
+                  ▶
+                </button>
+                <select
+                  id="songSelector"
+                  style="
+                    height: 30px;
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    padding: 0 4px;
+                    font-size: 13px;
+                    flex-shrink: 0;
+                  "
+                >
+                  <option value="0">CHAIN2NITE</option>
+                  <option value="1">Cosmogyral</option>
+                  <option value="2">ifu</option>
+                </select>
+                <div
+                  style="flex: 1; display: flex; align-items: center; gap: 8px"
+                >
+                  <input
+                    type="range"
+                    id="progressBar"
+                    min="0"
+                    max="100"
+                    value="0"
+                    style="flex: 1; height: 4px; cursor: pointer"
+                  />
+                  <span
+                    id="timeDisplay"
+                    style="color: #999; font-size: 12px; white-space: nowrap"
+                    >0:00 / 0:00</span
+                  >
+                </div>
+                <audio id="musicPlayer" preload="none"></audio>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-xs-12">
+          <div class="panel panel-info">
+            <div
+              class="panel-heading"
+              style="font-size: 18px; font-weight: bolder"
+            >
+              <span class="glyphicon glyphicon-play-circle"></span> 视频播放
+            </div>
+            <div class="panel-body" style="padding: 0">
+              <video
+                id="videoPlayer"
+                poster="https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/music2.jpg"
+                style="
+                  width: 100%;
+                  max-height: 420px;
+                  object-fit: contain;
+                  display: block;
+                  background: #000;
+                "
+              >
+                <source
+                  src="https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/video.mp4"
+                  type="video/mp4"
+                />
+              </video>
+              <div
+                style="
+                  padding: 12px 15px;
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
+                "
+              >
+                <button
+                  id="videoPlayBtn"
+                  onclick="toggleVideoPlay()"
+                  style="
+                    width: 40px;
+                    height: 40px;
+                    border: none;
+                    border-radius: 50%;
+                    background: #5bc0de;
+                    color: #fff;
+                    font-size: 18px;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                  "
+                >
+                  ▶
+                </button>
+                <div
+                  style="flex: 1; display: flex; align-items: center; gap: 8px"
+                >
+                  <input
+                    type="range"
+                    id="videoProgress"
+                    min="0"
+                    max="100"
+                    value="0"
+                    style="flex: 1; height: 4px; cursor: pointer"
+                  />
+                  <span
+                    id="videoTime"
+                    style="color: #999; font-size: 12px; white-space: nowrap"
+                    >0:00 / 0:00</span
+                  >
+                </div>
+                <div
+                  id="volumeWrapper"
+                  style="position: relative; display: flex; align-items: center"
+                >
+                  <button
+                    id="volumeBtn"
+                    onclick="toggleVolumeSlider()"
+                    style="
+                      width: 36px;
+                      height: 36px;
+                      border: none;
+                      border-radius: 4px;
+                      background: transparent;
+                      color: #999;
+                      font-size: 18px;
+                      cursor: pointer;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      flex-shrink: 0;
+                    "
+                  >
+                    🔊
+                  </button>
+                  <div
+                    id="volumeSliderContainer"
+                    style="
+                      position: absolute;
+                      bottom: 100%;
+                      left: 50%;
+                      transform: translateX(-50%);
+                      display: none;
+                      padding-bottom: 8px;
+                    "
+                  >
+                    <input
+                      type="range"
+                      id="videoVolume"
+                      min="0"
+                      max="1"
+                      step="0.05"
+                      value="0.15"
+                      style="
+                        height: 80px;
+                        width: 4px;
+                        cursor: pointer;
+                        writing-mode: vertical-lr;
+                        direction: rtl;
+                        padding: 0;
+                        margin: 0;
+                      "
+                    />
+                  </div>
+                </div>
+                <button
+                  id="fullscreenBtn"
+                  onclick="toggleFullscreen()"
+                  style="
+                    width: 36px;
+                    height: 36px;
+                    border: none;
+                    border-radius: 4px;
+                    background: #5bc0de;
+                    color: #fff;
+                    font-size: 16px;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                  "
+                >
+                  ⛶
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 15px">
+        <button class="btn btn-success">
+          辛苦看到这了，也是臭味相投啊兄弟
+        </button>
+      </div>
+    </div>
+
+    <script>
+      var songs = [
+        {
+          name: "CHAIN2NITE",
+          cover:
+            "https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/music.jpg",
+          src: "https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/music.mp3",
+        },
+        {
+          name: "Cosmogyral",
+          cover:
+            "https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/music2.jpg",
+          src: "https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/music2.mp3",
+        },
+        {
+          name: "ifu",
+          cover:
+            "https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/music3.jpg",
+          src: "https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/music3.mp3",
+        },
+      ];
+      var currentSongIdx = 0;
+      var musicPlaying = false;
+      var isSeeking = false;
+
+      function loadSong(index) {
+        var player = document.getElementById("musicPlayer");
+        player.pause();
+        player.src = songs[index].src;
+        player.load();
+        document.getElementById("musicCover").src = songs[index].cover;
+        musicPlaying = false;
+        document.getElementById("playBtn").textContent = "▶";
+        document.getElementById("progressBar").value = 0;
+        document.getElementById("timeDisplay").textContent = "0:00 / 0:00";
+      }
+
+      document.getElementById("songSelector").onchange = function () {
+        var idx = parseInt(this.value);
+        if (idx !== currentSongIdx) {
+          currentSongIdx = idx;
+          loadSong(idx);
+        }
+      };
+
+      function togglePlay() {
+        var player = document.getElementById("musicPlayer");
+        if (musicPlaying) {
+          player.pause();
+        } else {
+          if (!player.src || player.src === window.location.href) {
+            player.src = songs[currentSongIdx].src;
+            player.load();
+          }
+          player.volume = 0.15;
+          player
+            .play()
+            .then(function () {
+              musicPlaying = true;
+              document.getElementById("playBtn").textContent = "⏸";
+            })
+            .catch(function (e) {
+              alert("播放失败，请稍后重试");
+            });
+        }
+      }
+
+      document.getElementById("musicPlayer").ontimeupdate = function () {
+        if (isSeeking) return;
+        var player = document.getElementById("musicPlayer");
+        if (player.duration) {
+          document.getElementById("progressBar").value =
+            (player.currentTime / player.duration) * 100;
+          document.getElementById("timeDisplay").textContent =
+            formatTime(player.currentTime) +
+            " / " +
+            formatTime(player.duration);
+        }
+      };
+
+      document.getElementById("musicPlayer").onloadedmetadata = function () {
+        var player = document.getElementById("musicPlayer");
+        document.getElementById("timeDisplay").textContent =
+          "0:00 / " + formatTime(player.duration);
+      };
+
+      document.getElementById("progressBar").oninput = function () {
+        isSeeking = true;
+        var player = document.getElementById("musicPlayer");
+        if (player.duration) {
+          player.currentTime = (this.value / 100) * player.duration;
+        }
+      };
+
+      document.getElementById("progressBar").onchange = function () {
+        isSeeking = false;
+      };
+
+      document.getElementById("musicPlayer").onended = function () {
+        musicPlaying = false;
+        document.getElementById("playBtn").textContent = "▶";
+        document.getElementById("progressBar").value = 0;
+        var player = document.getElementById("musicPlayer");
+        document.getElementById("timeDisplay").textContent =
+          "0:00 / " + formatTime(player.duration);
+      };
+
+      document.getElementById("musicPlayer").onpause = function () {
+        if (musicPlaying) {
+          musicPlaying = false;
+          document.getElementById("playBtn").textContent = "▶";
+        }
+      };
+
+      var videoPlayer = document.getElementById("videoPlayer");
+      videoPlayer.volume = 0.15;
+      videoPlayer.removeAttribute("controls");
+      var isVideoSeeking = false;
+
+      function toggleVideoPlay() {
+        if (videoPlayer.paused) {
+          videoPlayer.play();
+        } else {
+          videoPlayer.pause();
+        }
+      }
+
+      videoPlayer.onplay = function () {
+        document.getElementById("videoPlayBtn").textContent = "⏸";
+      };
+
+      videoPlayer.onpause = function () {
+        document.getElementById("videoPlayBtn").textContent = "▶";
+      };
+
+      videoPlayer.ontimeupdate = function () {
+        if (isVideoSeeking) return;
+        if (videoPlayer.duration) {
+          document.getElementById("videoProgress").value =
+            (videoPlayer.currentTime / videoPlayer.duration) * 100;
+          document.getElementById("videoTime").textContent =
+            formatTime(videoPlayer.currentTime) +
+            " / " +
+            formatTime(videoPlayer.duration);
+        }
+      };
+
+      videoPlayer.onloadedmetadata = function () {
+        document.getElementById("videoTime").textContent =
+          "0:00 / " + formatTime(videoPlayer.duration);
+      };
+
+      document.getElementById("videoProgress").oninput = function () {
+        isVideoSeeking = true;
+        if (videoPlayer.duration) {
+          videoPlayer.currentTime = (this.value / 100) * videoPlayer.duration;
+        }
+      };
+
+      document.getElementById("videoProgress").onchange = function () {
+        isVideoSeeking = false;
+      };
+
+      document.getElementById("videoVolume").oninput = function () {
+        videoPlayer.volume = this.value;
+      };
+
+      function toggleVolumeSlider() {
+        var c = document.getElementById("volumeSliderContainer");
+        c.style.display = c.style.display === "none" ? "block" : "none";
+      }
+
+      document.addEventListener("click", function (e) {
+        var w = document.getElementById("volumeWrapper");
+        if (!w.contains(e.target)) {
+          document.getElementById("volumeSliderContainer").style.display =
+            "none";
+        }
+      });
+
+      function toggleFullscreen() {
+        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+          if (videoPlayer.requestFullscreen) {
+            videoPlayer.requestFullscreen();
+          } else if (videoPlayer.webkitRequestFullscreen) {
+            videoPlayer.webkitRequestFullscreen();
+          }
+        } else {
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
+          } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+          }
+        }
+      }
+
+      function onFullscreenChange() {
+        if (document.fullscreenElement || document.webkitFullscreenElement) {
+          videoPlayer.setAttribute("controls", "controls");
+        } else {
+          videoPlayer.removeAttribute("controls");
+        }
+      }
+
+      document.addEventListener("fullscreenchange", onFullscreenChange);
+      document.addEventListener("webkitfullscreenchange", onFullscreenChange);
+
+      videoPlayer.onended = function () {
+        document.getElementById("videoPlayBtn").textContent = "▶";
+        document.getElementById("videoProgress").value = 0;
+      };
+
+      function formatTime(seconds) {
+        if (isNaN(seconds)) return "0:00";
+        var m = Math.floor(seconds / 60);
+        var s = Math.floor(seconds % 60);
+        return m + ":" + (s < 10 ? "0" : "") + s;
+      }
+    </script>
+  </body>
+</html>

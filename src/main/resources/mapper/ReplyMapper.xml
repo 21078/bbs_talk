@@ -26,11 +26,12 @@
         <result property="user.uid" column="uid"/>
         <result property="user.uname" column="uname"/>
         <result property="user.path" column="user_path"/>
+        <result property="user.verified" column="user_verified"/>
 
     </resultMap>
 
     <select id="findReplyByPid" resultMap="ReplyAndUser" parameterType="Long">
-        SELECT u.uid,u.uname,u.path as user_path,replymessage,replytime,rid,is_sticky
+        SELECT u.uid,u.uname,u.path as user_path, u.verified as user_verified,replymessage,replytime,rid,is_sticky
         FROM reply r LEFT JOIN user u ON r.uid = u.uid
         WHERE pid = #{value}
         ORDER BY is_sticky DESC, replytime ASC
@@ -55,7 +56,7 @@
     </parameterMap>
 
     <select id="findReplyByPidAndPage" resultMap="ReplyAndUser" parameterMap="PidStartPageShowPage">
-        SELECT u.uid,u.uname,u.path as user_path,replymessage,replytime,rid,is_sticky
+        SELECT u.uid,u.uname,u.path as user_path, u.verified as user_verified,replymessage,replytime,rid,is_sticky
         FROM reply r LEFT JOIN user u ON r.uid = u.uid
         WHERE pid = #{pid}
         ORDER BY is_sticky DESC, replytime ASC
@@ -83,7 +84,7 @@
 
     <!-- 根据回复ID查询回复 -->
     <select id="findReplyById" parameterType="Long" resultMap="ReplyAndUser">
-        SELECT u.uid,u.uname,u.path as user_path,replymessage,replytime,rid,is_sticky
+        SELECT u.uid,u.uname,u.path as user_path, u.verified as user_verified,replymessage,replytime,rid,is_sticky
         FROM reply r LEFT JOIN user u ON r.uid = u.uid
         WHERE rid = #{value}
     </select>

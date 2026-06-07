@@ -3,51 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <title>个人管理</title>
-    <script th:src="@{js/jquery/2.0.0/jquery.min.js}" src="js/jquery/2.0.0/jquery.min.js"></script>
-    <link th:href="@{../css/bootstrap/3.3.6/bootstrap.min.css}" href="css/bootstrap/3.3.6/bootstrap.min.css"
+    <script th:src="@{/js/jquery/2.0.0/jquery.min.js}" src="/js/jquery/2.0.0/jquery.min.js"></script>
+    <link th:href="@{/css/bootstrap/3.3.6/bootstrap.min.css}" href="/css/bootstrap/3.3.6/bootstrap.min.css"
           rel="stylesheet"/>
-    <script th:src="@{js/bootstrap/3.3.6/bootstrap.min.js}" src="js/bootstrap/3.3.6/bootstrap.min.js"></script>
-    <script type="text/javascript" th:src="@{js/private.js}"></script>
+    <script th:src="@{/js/bootstrap/3.3.6/bootstrap.min.js}" src="/js/bootstrap/3.3.6/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+    <style>
+    .crop-circle .cropper-crop-box {
+        overflow: hidden;
+    }
+    .crop-circle .cropper-crop-box::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        border-radius: 50%;
+        box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);
+        pointer-events: none;
+        z-index: 10;
+    }
+    </style>
+    <script type="text/javascript" th:src="@{/js/private.js}"></script>
 <script type="text/javascript">
-// 头像预览功能
+var cropper = null;
+var croppedBlob = null;
+
 $(document).ready(function() {
     $('#avatarImage').change(function(e) {
         var file = e.target.files[0];
         if (file) {
-            // 检查文件大小 (5MB = 5 * 1024 * 1024 bytes)
             if (file.size > 5 * 1024 * 1024) {
                 alert('图片大小不能超过5MB');
                 $(this).val('');
                 return;
             }
-
-            // 检查文件类型
             var fileType = file.type.toLowerCase();
             if (fileType !== 'image/jpeg' && fileType !== 'image/png' && fileType !== 'image/jpg') {
                 alert('只支持JPG和PNG格式的图片');
                 $(this).val('');
                 return;
             }
-
-            // 预览图片
             var reader = new FileReader();
             reader.onload = function(e) {
-                $('#avatarPreview').attr('src', e.target.result);
+                $('#cropImage').attr('src', e.target.result);
+                $('#cropModal').modal('show');
             };
             reader.readAsDataURL(file);
         }
     });
 
-    // 表单提交前检查
+    $('#cropModal').on('shown.bs.modal', function() {
+        if (cropper) cropper.destroy();
+                        cropper = new Cropper(document.getElementById('cropImage'), {
+                            aspectRatio: 1,
+                            viewMode: 1,
+                            dragMode: 'move',
+                            autoCropArea: 0.5,
+            cropBoxMovable: true,
+            cropBoxResizable: true,
+            background: false,
+        });
+    });
+
+    $('#cropModal').on('hidden.bs.modal', function() {
+        if (cropper) { cropper.destroy(); cropper = null; }
+    });
+
+    $('#confirmCrop').click(function() {
+        if (cropper) {
+            var canvas = cropper.getCroppedCanvas({ width: 200, height: 200 });
+            canvas.toBlob(function(blob) {
+                croppedBlob = blob;
+                $('#avatarPreview').attr('src', canvas.toDataURL());
+                $('#cropModal').modal('hide');
+            }, 'image/jpeg', 0.9);
+        }
+    });
+
     $('#profileForm').submit(function(e) {
-        var avatarFile = $('#avatarImage')[0].files[0];
-        if (avatarFile) {
-            // 再次验证文件大小
-            if (avatarFile.size > 5 * 1024 * 1024) {
-                alert('头像图片大小不能超过5MB');
-                e.preventDefault();
-                return false;
-            }
+        var phone = $('input[name="phone"]').val();
+        if (phone && phone.length > 0 && !/^\d+$/.test(phone)) {
+            alert('联系电话必须为数字');
+            return false;
+        }
+        if (croppedBlob) {
+            e.preventDefault();
+            var formData = new FormData(this);
+            formData.delete('avatarImage');
+            formData.append('avatarImage', croppedBlob, 'avatar.jpg');
+            $.ajax({
+                url: '/updateProfile.do',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function() { location.href = '/person.do'; },
+                error: function() { alert('更新失败'); }
+            });
         }
     });
 });
@@ -71,7 +123,7 @@ $(document).ready(function() {
                     </a>
                 </h4>
             </div>
-            <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+             <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-xs-2">
@@ -110,13 +162,13 @@ $(document).ready(function() {
                 <div class="panel-heading" role="tab" id="headingTwo">
                     <h4 class="panel-title">
                         <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo"
-                           aria-expanded="false"
+                           aria-expanded="true"
                            aria-controls="collapseTwo">
                             个人信息管理
                         </a>
                     </h4>
                 </div>
-                <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+                <div id="collapseTwo" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingTwo">
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-xs-2">
@@ -125,10 +177,14 @@ $(document).ready(function() {
                         </div>
                         <div class="row" style="margin-bottom: 20px;">
                             <div class="col-xs-12" style="text-align: center;">
-                                <img th:src="${currentUser.path} ?: 'https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/default_face.jpg'"
-                                     style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd;"
-                                     onerror="this.src='https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/default_face.jpg'"
-                                     id="avatarPreview">
+                                <div style="position: relative; display: inline-block;">
+                                    <img th:src="${currentUser.path} ?: 'https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/default_face.jpg'"
+                                         style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd;"
+                                         onerror="this.src='https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/default_face.jpg'"
+                                         id="avatarPreview">
+                                    <span th:if="${currentUser.verified == 1}"
+                                          style="position: absolute; bottom: 0px; right: 0px; width: 22px; height: 22px; background: #4A90D9; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center; font-size: 13px; color: white; font-weight: bold; line-height: 1;">V</span>
+                                </div>
                                 <p class="text-muted" style="margin-top: 5px;">当前头像</p>
                             </div>
                         </div>
@@ -180,13 +236,13 @@ $(document).ready(function() {
                 <div class="panel-heading" role="tab" id="headingThree">
                     <h4 class="panel-title">
                         <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree"
-                           aria-expanded="false"
+                           aria-expanded="true"
                            aria-controls="collapseThree">
                             账户注销
                         </a>
                     </h4>
                 </div>
-                <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+                <div id="collapseThree" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingThree">
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-xs-12">
@@ -214,6 +270,27 @@ $(document).ready(function() {
 
     </div>
 
+</div>
+
+<div class="modal fade" id="cropModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">裁剪头像</h4>
+            </div>
+            <div class="modal-body">
+                <div class="crop-circle" style="max-width: 100%;">
+                    <img id="cropImage" src="" style="max-width: 100%;">
+                </div>
+                <p class="text-muted" style="margin-top: 10px;">拖动或缩放方框选择要作为头像的区域，头像将以圆形显示</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="confirmCrop">确认裁剪</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 </body>

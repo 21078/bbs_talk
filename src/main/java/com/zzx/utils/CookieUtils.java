@@ -1,7 +1,6 @@
 package com.zzx.utils;
 
 import javax.servlet.http.Cookie;
-import java.util.Map;
 
 /**
  * Cookie工具类

@@ -68,6 +68,14 @@ public interface PostService {
     Page<Post> findPostByPageAndCategory(Map<String, Long> map, String category);
 
     /**
+     * 根据关键词分页查询帖子（模糊匹配标题和用户名）
+     * @param map 分页参数
+     * @param keyword 搜索关键词
+     * @return Page<Post> 分页对象
+     */
+    Page<Post> findPostByPageAndKeyword(Map<String, Long> map, String keyword);
+
+    /**
      * 切换帖子置顶状态
      * @param pid 帖子ID
      * @param isSticky 置顶状态：0取消置顶，1置顶

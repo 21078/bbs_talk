@@ -1,6 +1,5 @@
 package com.zzx.mapper;
 
-import com.zzx.model.Post;
 import com.zzx.model.Reply;
 import org.apache.ibatis.annotations.Param;
 

@@ -9,6 +9,7 @@ import com.zzx.model.User;
 import com.zzx.service.PostService;
 import com.zzx.service.ReplyService;
 import com.zzx.service.FavoriteService;
+import com.zzx.service.NotificationService;
 import com.zzx.service.UserService;
 import com.zzx.utils.OssUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,9 @@ public class PostController {
     private UserService userService;
 
     @Autowired
+    private NotificationService notificationService;
+
+    @Autowired
     private OssUtil ossUtil;
 
     /**
@@ -67,6 +71,10 @@ public class PostController {
             // 检查用户是否被禁言
             if (user.getUstate() == 0)
                 return "你已被禁言";
+
+            // 检查是否允许互动（管理员不受限制）
+            if (!HostController.allowInteraction && user.getLevel() != 0)
+                return "管理员已关闭互动功能";
 
             // 预设板块列表
             List<String> validCategories = Arrays.asList("娱乐", "技术", "美食", "旅游", "问题");
@@ -170,6 +178,7 @@ public class PostController {
         }
 
         model.addAttribute("post", post);
+        model.addAttribute("videoRedirectEnabled", HostController.videoRedirectEnabled);
 
         // 根据pid分页查询回复
         Map<String, Long> map = new HashMap<>();
@@ -198,6 +207,10 @@ public class PostController {
             if (user.getUstate() == 0)
                 return "你已被禁言";
 
+            // 检查是否允许互动（管理员不受限制）
+            if (!HostController.allowInteraction && user.getLevel() != 0)
+                return "管理员已关闭互动功能";
+
             // 验证回复内容长度
             if (reply.getReplymessage().length() > 0 && reply.getReplymessage().length() <= 1000) {
                 // 处理换行符，转换为HTML格式
@@ -212,6 +225,15 @@ public class PostController {
                 reply.getPost().setLastreplytime(date);
 
                 replyService.saveReply(reply);
+
+                // 发送通知给帖子作者（排除自己回复自己）
+                Post repliedPost = postService.findPostByPid(reply.getPost().getPid().longValue());
+                if (!repliedPost.getUser().getUid().equals(user.getUid())) {
+                    String content = user.getUname() + " 回复了你的帖子《" + repliedPost.getPtitle() + "》";
+                    notificationService.notify(repliedPost.getUser().getUid(), "reply", content,
+                        user.getUid(), user.getUname(), repliedPost.getPid().intValue(), repliedPost.getPtitle());
+                }
+
                 return "回帖成功";
             } else
                 return "注意字数";
@@ -272,6 +294,24 @@ public class PostController {
     }
 
     /**
+     * 查看指定用户的帖子
+     * @param uid 用户ID
+     * @param model Spring MVC模型对象
+     * @return 用户帖子页面视图
+     */
+    @RequestMapping(value = "/user/{uid}/posts", method = RequestMethod.GET)
+    public String userPosts(@PathVariable Integer uid, Model model) {
+        User targetUser = userService.findUserByUid(uid);
+        if (targetUser == null) {
+            return "redirect:/";
+        }
+        List<Post> posts = postService.findPostsByUserId(uid.longValue());
+        model.addAttribute("posts", posts);
+        model.addAttribute("targetUser", targetUser);
+        return "user_posts";
+    }
+
+    /**
      * 更新帖子内容接口
      * 允许用户修改自己帖子的内容（不能修改标题）
      *
@@ -325,14 +365,119 @@ public class PostController {
     }
 
     /**
-     * 切换帖子置顶状态接口
-     * 管理员可以将帖子置顶或取消置顶
+     * 批评扣分接口
+     * 每次狠狠批评扣除用户10积分
+     *
+     * @param session HTTP会话对象
+     * @return 扣分结果
+     */
+    @RequestMapping(value = "/critique/deduct", method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String, Object> deductCritiquePoints(HttpSession session) {
+        Map<String, Object> result = new HashMap<>();
+        User onlineUser = (User) session.getAttribute("user");
+        if (onlineUser == null) {
+            result.put("success", false);
+            result.put("message", "未登录");
+            return result;
+        }
+        boolean deducted = userService.deductUserScore(onlineUser.getUid(), 10);
+        if (deducted) {
+            User updatedUser = userService.findUserByUid(onlineUser.getUid());
+            session.setAttribute("user", updatedUser);
+            result.put("success", true);
+            result.put("newScore", updatedUser.getScore());
+        } else {
+            result.put("success", false);
+            result.put("message", "积分不足，无法批评");
+        }
+        return result;
+    }
+
+    /**
+     * 狠狠认同接口
+     * 每次认同回复给用户加50积分
+     *
+     * @param session HTTP会话对象
+     * @return 加积分结果
+     */
+    @RequestMapping(value = "/agree/add", method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String, Object> addAgreePoints(HttpSession session) {
+        Map<String, Object> result = new HashMap<>();
+        User onlineUser = (User) session.getAttribute("user");
+        if (onlineUser == null) {
+            result.put("success", false);
+            result.put("message", "未登录");
+            return result;
+        }
+        userService.addUserScore(onlineUser.getUid(), 10);
+        User updatedUser = userService.findUserByUid(onlineUser.getUid());
+        session.setAttribute("user", updatedUser);
+        result.put("success", true);
+        result.put("newScore", updatedUser.getScore());
+        return result;
+    }
+
+    /**
+     * 视频播放页面
+     * 显示狠狠批评通关后的视频
      *
      * @param pid 帖子ID
-     * @param action 操作：sticky置顶，unsticky取消置顶
-     * @param session HTTP会话对象
-     * @return 操作结果消息
+     * @return 视频播放页面视图
      */
+    @RequestMapping(value = "/video/{pid}", method = RequestMethod.GET)
+    public String videoPage(@PathVariable Long pid) {
+        return "video";
+    }
+
+    @RequestMapping(value = "/video/pay", method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String, Object> payForVideo(HttpSession session) {
+        Map<String, Object> result = new HashMap<>();
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            result.put("success", false);
+            result.put("message", "未登录");
+            return result;
+        }
+        boolean deducted = userService.deductUserScore(user.getUid(), 50);
+        if (deducted) {
+            User updatedUser = userService.findUserByUid(user.getUid());
+            session.setAttribute("user", updatedUser);
+            result.put("success", true);
+            result.put("newScore", updatedUser.getScore());
+        } else {
+            result.put("success", false);
+            result.put("message", "积分余额不够");
+        }
+        return result;
+    }
+
+    @RequestMapping(value = "/video/verify", method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String, Object> verifyUser(HttpSession session) {
+        Map<String, Object> result = new HashMap<>();
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            result.put("success", false);
+            result.put("message", "未登录");
+            return result;
+        }
+        // 如果未认证则认证，已认证不做操作
+        if (user.getVerified() == null || user.getVerified() == 0) {
+            userService.verifyUser(user.getUid());
+            User updatedUser = userService.findUserByUid(user.getUid());
+            session.setAttribute("user", updatedUser);
+            result.put("success", true);
+            result.put("message", "认证成功");
+        } else {
+            result.put("success", true);
+            result.put("message", "已认证");
+        }
+        return result;
+    }
+
     @RequestMapping(value = "/toggleSticky/{pid}/{action}", method = RequestMethod.GET)
     @ResponseBody
     public String toggleSticky(@PathVariable Long pid, @PathVariable String action, HttpSession session) {

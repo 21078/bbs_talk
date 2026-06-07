@@ -185,6 +185,35 @@ public class PostServiceImpl implements PostService {
     }
 
     /**
+     * 根据关键词分页查询帖子
+     * @param map 分页参数
+     * @param keyword 搜索关键词
+     * @return Page<Post> 分页对象
+     */
+    @Override
+    public Page<Post> findPostByPageAndKeyword(Map<String, Long> map, String keyword) {
+        Page<Post> page = new Page<>();
+        map.put("showPage", page.getShowCount().longValue());
+        page.setCurrentPage((int)(map.get("startPage") + 1));
+        map.replace("startPage", map.get("startPage") * page.getShowCount());
+
+        Map<String, Object> queryMap = new HashMap<>();
+        queryMap.putAll(map);
+        queryMap.put("keyword", keyword);
+
+        page.setModelList(postMapper.findPostByPageAndKeyword(queryMap));
+
+        Integer postCount = postMapper.getPostCountByKeyword(keyword);
+
+        page.setPageTotal(postCount % page.getShowCount() == 0 ? postCount / page.getShowCount() : (postCount / page.getShowCount()) + 1);
+
+        for (Post post : page.getModelList()) {
+            post.setReplyCount(replyMapper.getReplyCountByPid(post.getPid()));
+        }
+        return page;
+    }
+
+    /**
      * 切换帖子置顶状态
      * @param pid 帖子ID
      * @param isSticky 置顶状态：0取消置顶，1置顶

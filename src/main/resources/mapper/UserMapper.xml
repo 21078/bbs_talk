@@ -7,26 +7,26 @@
 
     <insert id="save" parameterType="User">
         INSERT INTO user
-        VALUES (null,#{uname},#{upwd},#{ustate},#{ucreatetime},#{level},#{phone},#{career},#{address},100,#{path,jdbcType=VARCHAR});
+        VALUES (null,#{uname},#{upwd},#{ustate},#{ucreatetime},#{level},#{phone},#{career},#{address},100,#{path,jdbcType=VARCHAR},0);
     </insert>
 
 
     <select id="findUserByUname" parameterType="User" resultType="User">
 
-        SELECT uid,uname,upwd,ustate,ucreatetime,level,phone,career,address,score,path
+        SELECT uid,uname,upwd,ustate,ucreatetime,level,phone,career,address,score,path,verified
         FROM user
         WHERE uname=#{uname}
     </select>
 
 
     <select id="findUserByUnameAndUpwd" resultType="User" parameterType="User">
-        SELECT uid,uname,upwd,ustate,ucreatetime,level,phone,career,address,score,path
+        SELECT uid,uname,upwd,ustate,ucreatetime,level,phone,career,address,score,path,verified
         FROM user
         WHERE uname=#{uname} and upwd=#{upwd}
     </select>
 
     <select id="findAllUser" resultType="User">
-        SELECT uid,uname,ustate,ucreatetime,level,phone,career,address,path
+        SELECT uid,uname,ustate,ucreatetime,level,phone,career,address,path,verified
         FROM user
     </select>
 
@@ -59,7 +59,7 @@
     </update>
 
     <select id="findUserByUid" parameterType="Integer" resultType="User">
-        SELECT uid,uname,upwd,ustate,ucreatetime,level,phone,career,address,score,path
+        SELECT uid,uname,upwd,ustate,ucreatetime,level,phone,career,address,score,path,verified
         FROM user
         WHERE uid = ${value}
     </select>
@@ -84,10 +84,34 @@
         WHERE uid = #{uid} AND score >= #{score}
     </update>
 
+    <update id="updateVerified" parameterType="map">
+        UPDATE user
+        SET verified = #{verified}
+        WHERE uid = #{uid}
+    </update>
+
     <!-- 删除用户 -->
     <delete id="deleteUser" parameterType="Integer">
         DELETE FROM user
         WHERE uid = #{uid}
     </delete>
+
+    <!-- 禁言所有非管理员用户 -->
+    <update id="banAllNonAdminUsers">
+        UPDATE user
+        SET ustate = 0
+        WHERE level = 1
+    </update>
+
+    <!-- 解禁所有非管理员用户 -->
+    <update id="unbanAllNonAdminUsers">
+        UPDATE user
+        SET ustate = 1
+        WHERE level = 1
+    </update>
+
+    <select id="findAllUids" resultType="int">
+        SELECT uid FROM user
+    </select>
 
 </mapper>

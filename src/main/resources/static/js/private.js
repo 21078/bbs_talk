@@ -91,7 +91,7 @@ $(function ()
         {
             alert(data);
             if (data == "退出成功")
-                location.reload()
+                window.location.href = '/'
         });
     });
 
@@ -334,6 +334,10 @@ $(function ()
             alert("注意字数");
     })
 
+    // 初始化表情选择器
+    initEmojiPicker('sendPostBody');
+    initEmojiPicker('replyMessage');
+
     $("#deleteReply").click(function ()
     {
         var url = $(this).parent().attr("href");
@@ -389,6 +393,7 @@ function unbanUser(uid)
 
 function addFavorite(pid)
 {
+    if (pid == 12 || pid == 3) { alert('该帖子已被锁定，无法修改'); return; }
     console.log("Adding favorite for post:", pid);
     $.get("/favorite/add/" + pid)
     .done(function(data) {
@@ -406,6 +411,7 @@ function addFavorite(pid)
 
 function removeFavorite(pid)
 {
+    if (pid == 12 || pid == 3) { alert('该帖子已被锁定，无法修改'); return; }
     console.log("Removing favorite for post:", pid);
     $.get("/favorite/remove/" + pid)
     .done(function(data) {
@@ -423,6 +429,7 @@ function removeFavorite(pid)
 
 function toggleSticky(pid, action)
 {
+    if (pid == 12 || pid == 3) { alert('该帖子已被锁定，无法修改'); return; }
     var actionText = action === 'sticky' ? '置顶' : '取消置顶';
     if (confirm('确定要' + actionText + '这个帖子吗？')) {
         $.get("/toggleSticky/" + pid + "/" + action)
@@ -508,7 +515,7 @@ function login()
         {
             alert(data);
             if (data == "登录成功")
-                location.reload();
+                window.location.href = '/';
             else
             {
                 // 登录失败
@@ -517,4 +524,143 @@ function login()
     }
 }
 
+function toggleVerified(uid)
+{
+    $.post("/admin/toggleVerified/" + uid, function (data)
+    {
+        alert(data);
+        if (data.indexOf("成功") > -1) {
+            location.reload();
+        }
+    });
+}
+
+function toggleVideoRedirect()
+{
+    $.post("/admin/toggleVideoRedirect", function (data)
+    {
+        alert(data);
+        location.reload();
+    });
+}
+
+/* ========== 表情选择器 ========== */
+var EMOJI_LIST = [
+    '😀','😃','😄','😁','😆','😅','🤣','😂','🙂','😊','😇','🥰','😍','🤩','😘','😗',
+    '😋','😛','😜','🤪','😝','🤑','🤗','🤭','🤔','🤐','😏','😒','🙄','😬','😌','😔',
+    '😴','😷','🤒','🥳','🥺','😎','🤓','😈','👿','💀','👻','👽','🤖','💩',
+    '👍','👎','👊','✊','👏','🙌','👐','🤝','🙏','✌️','🤞','💪',
+    '❤️','🧡','💛','💚','💙','💜','🖤','🤍','💖','💗','💕','💞',
+    '🔥','⭐','✨','🌟','💫','🎉','🎊','🎈','🎁','🏆','👑','💎','🌈',
+    '✅','❌','💯','❗','❓','💤','💢','💥','💦','💨'
+];
+
+function initEmojiPicker(textareaId) {
+    var textarea = document.getElementById(textareaId);
+    if (!textarea) return;
+
+    var panel = document.createElement('div');
+    panel.className = 'emoji-panel';
+    panel.id = textareaId + '_panel';
+
+    for (var i = 0; i < EMOJI_LIST.length; i++) {
+        (function(emoji) {
+            var span = document.createElement('span');
+            span.className = 'emoji-item';
+            span.textContent = emoji;
+            span.title = emoji;
+            span.onclick = function() {
+                insertEmoji(textarea, emoji);
+            };
+            panel.appendChild(span);
+        })(EMOJI_LIST[i]);
+    }
+
+    textarea.parentNode.insertBefore(panel, textarea);
+
+    var bar = document.createElement('div');
+    bar.className = 'emoji-bar';
+    var btn = document.createElement('span');
+    btn.className = 'emoji-toggle';
+    btn.textContent = '😊 表情';
+    btn.onclick = function() {
+        panel.classList.toggle('show');
+        btn.classList.toggle('active');
+    };
+    bar.appendChild(btn);
+    textarea.parentNode.insertBefore(bar, textarea);
+}
+
+function insertEmoji(textarea, emoji) {
+    var start = textarea.selectionStart;
+    var end = textarea.selectionEnd;
+    textarea.value = textarea.value.substring(0, start) + emoji + textarea.value.substring(end);
+    textarea.selectionStart = textarea.selectionEnd = start + emoji.length;
+    textarea.focus();
+}
+
+/* ========== 实时通知系统 ========== */
+var notificationWs = null;
+
+function initNotificationWebSocket() {
+    var uid = $('#notificationBellArea').data('uid');
+    if (!uid) return;
+    if (notificationWs) { notificationWs.close(); }
+    var protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    notificationWs = new WebSocket(protocol + '//' + location.host + '/ws/notification?uid=' + uid);
+    notificationWs.onmessage = function(event) {
+        try {
+            var data = JSON.parse(event.data);
+            updateNotificationBadge(1);
+            incrementTabBadge('all');
+            if (data.type) incrementTabBadge(data.type);
+        } catch(e) {};
+    };
+    notificationWs.onclose = function() {
+        setTimeout(initNotificationWebSocket, 5000);
+    };
+}
+
+function loadUnreadCount() {
+    $.get('/notification/unread-count', function(res) {
+        var count = parseInt(res.count);
+        updateNotificationBadge(count);
+    });
+}
+
+function updateNotificationBadge(count) {
+    var badge = $('#notificationBadge');
+    if (count > 0) {
+        badge.text(count > 99 ? '99+' : count).show();
+    } else {
+        badge.hide();
+    }
+}
+
+function incrementTabBadge(type) {
+    var badge = $('#tab-badge-' + type);
+    if (badge.length) {
+        var count = parseInt(badge.text()) + 1;
+        badge.text(count > 99 ? '99+' : count).show();
+    }
+}
+
+function decrementTabBadge(type) {
+    var badge = $('#tab-badge-' + type);
+    if (badge.length) {
+        var count = parseInt(badge.text()) - 1;
+        if (count > 0) {
+            badge.text(count > 99 ? '99+' : count).show();
+        } else {
+            badge.hide();
+        }
+    }
+}
+
+$(function() {
+    if ($('#notificationBellArea').length && $('#notificationBellArea').data('uid')) {
+        initNotificationWebSocket();
+        loadUnreadCount();
+    }
+});
 /*]]>*/

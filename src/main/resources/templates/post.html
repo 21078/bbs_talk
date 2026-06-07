@@ -1,212 +1,1213 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="utf-8"/>
+  <head>
+    <meta charset="utf-8" />
     <title th:text="${post.ptitle}">帖子标题</title>
 
-    <script th:src="@{../js/jquery/2.0.0/jquery.min.js}" src="js/jquery/2.0.0/jquery.min.js"></script>
-    <link th:href="@{../css/bootstrap/3.3.6/bootstrap.min.css}" href="css/bootstrap/3.3.6/bootstrap.min.css"
-          rel="stylesheet"/>
-    <script th:src="@{../js/bootstrap/3.3.6/bootstrap.min.js}" src="js/bootstrap/3.3.6/bootstrap.min.js"></script>
-    <script type="text/javascript" th:src="@{../js/private.js}"></script>
-    <link th:href="@{../css/tx.css}" rel="stylesheet"/>
-</head>
-<body>
-<canvas id="canvas"></canvas>
-<script type="text/javascript" th:src="@{../js/triangle-bg.js}"></script>
+    <script
+      th:src="@{/js/jquery/2.0.0/jquery.min.js}"
+      src="/js/jquery/2.0.0/jquery.min.js"
+    ></script>
+    <link
+      th:href="@{/css/bootstrap/3.3.6/bootstrap.min.css}"
+      href="/css/bootstrap/3.3.6/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script
+      th:src="@{/js/bootstrap/3.3.6/bootstrap.min.js}"
+      src="/js/bootstrap/3.3.6/bootstrap.min.js"
+    ></script>
+    <script type="text/javascript" th:src="@{/js/private.js}"></script>
+    <link th:href="@{/css/tx.css}" rel="stylesheet" />
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <script type="text/javascript" th:src="@{/js/triangle-bg.js}"></script>
 
+    <div class="container">
+      <div th:replace="head::header"></div>
 
-<div class="container">
-    <div th:replace="head::header"></div>
-
-
-    <div class="row">
+      <div class="row">
         <div class="col-xs-12">
-            <div class="panel panel-info">
-                <div class="panel-heading" style="font-size: 18px;font-weight: bolder">
-                    <span th:text="${post.ptitle}">帖子标题</span>
-                    <span th:if="${post.isSticky != null and post.isSticky == 1}" class="label label-danger pull-right" style="margin-left: 5px;">
-                        <span class="glyphicon glyphicon-pushpin"></span> 置顶
-                    </span>
-                    <span th:switch="${post.category}">
-                        <span th:case="'娱乐'" class="label label-success pull-right" th:text="${post.category}">娱乐</span>
-                        <span th:case="'技术'" class="label label-primary pull-right" th:text="${post.category}">技术</span>
-                        <span th:case="'美食'" class="label label-warning pull-right" th:text="${post.category}">美食</span>
-                        <span th:case="'旅游'" class="label label-info pull-right" th:text="${post.category}">旅游</span>
-                        <span th:case="'问题'" class="label label-danger pull-right" th:text="${post.category}">问题</span>
-                        <span th:case="*" class="label label-default pull-right" th:text="${post.category}">其他</span>
-                    </span>
-                </div>
-                <div class="panel-body">
-                    <!-- 封面图片显示 -->
-                    <div th:if="${post.path != null and !post.path.isEmpty()}" style="margin-bottom: 15px;">
-                        <img th:src="${post.path}" alt="封面图片" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"
-                             onerror="this.src='https://via.placeholder.com/600x300/e0e0e0/666?text=No+Image';">
-                    </div>
-                    <!-- 帖子内容 -->
-                    <div th:utext="${post.pbody}">
-                        帖子内容<br/>
-                        帖子内容<br/>
-                        帖子内容<br/>
-
-                        帖子内容<br/>
-                    </div>
-                </div>
-                <div class="panel-footer" style="height: 40px;">
-                    <div class="col-xs-2">
-                        <div style="display: flex; align-items: center;">
-                            <img th:src="${post.user.path} ?: 'https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/default_face.jpg'"
-                                 style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; margin-right: 5px;"
-                                 onerror="this.src='https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/default_face.jpg'">
-                            <span class="text-info" th:text="|发帖用户:${post.user.uname}|">发帖用户:xxx</span>
-                        </div>
-                    </div>
-                    <div class="col-xs-6">
-                        <span class="text-primary"
-                              th:text="|发帖时间:${#dates.format(post.psendtime,'yyyy-MM-dd HH:mm:ss')}|">发帖时间:2019-2-5-08:00:00</span>
-                    </div>
-                    <div class="col-xs-2">
-                        <span class="badge" th:text="|回复数:${post.replyCount}|">回复数:111</span>
-                    </div>
-                    <div class="col-xs-2">
-                        <span class="badge" th:text="|收藏:${post.favoriteCount}|">收藏:0</span>
-                    </div>
-                    <div class="col-xs-1">
-                        <button type="button" th:if="${session.user!=null}" class="btn btn-primary btn-xs"
-                                data-toggle="modal" data-target="#myModal">
-                            回复
-                        </button>
-                    </div>
-                    <div class="col-xs-1" th:if="${session.user!=null}">
-                        <button type="button" class="btn btn-warning btn-xs favorite-btn"
-                                th:if="${post.isFavorited==null or !post.isFavorited}"
-                                th:onclick="'addFavorite('+${post.pid}+')'">
-                            <span class="glyphicon glyphicon-star-empty"></span> 收藏
-                        </button>
-                        <button type="button" class="btn btn-danger btn-xs favorite-btn favorited"
-                                th:if="${post.isFavorited!=null and post.isFavorited}"
-                                th:onclick="'removeFavorite('+${post.pid}+')'">
-                            <span class="glyphicon glyphicon-star"></span> 取消收藏
-                        </button>
-                    </div>
-                    <div class="col-xs-1"
-                         th:if="${session.user!=null}?(${session.user.uid == post.user.uid}?true:${session.user.level==0}):false">
-                        <a th:href="|/delete/${post.pid}|" onclick="return confirm('确定要删除这个帖子吗？删除后无法恢复！');">
-                            <button type="button" class="btn btn-primary btn-xs">删除</button>
-                        </a>
-                    </div>
-                    <div class="col-xs-1" th:if="${session.user!=null and session.user.level==0}">
-                        <a th:if="${post.isSticky != null and post.isSticky == 1}" th:href="|javascript:toggleSticky(${post.pid}, 'unsticky')|">
-                            <button type="button" class="btn btn-warning btn-xs">
-                                <span class="glyphicon glyphicon-arrow-down"></span> 取消置顶
-                            </button>
-                        </a>
-                        <a th:if="${post.isSticky == null or post.isSticky == 0}" th:href="|javascript:toggleSticky(${post.pid}, 'sticky')|">
-                            <button type="button" class="btn btn-success btn-xs">
-                                <span class="glyphicon glyphicon-arrow-up"></span> 置顶
-                            </button>
-                        </a>
-                    </div>
-                </div>
+          <div class="panel panel-info">
+            <div
+              class="panel-heading"
+              style="font-size: 18px; font-weight: bolder"
+            >
+              <span th:text="${post.ptitle}">帖子标题</span>
+              <span
+                th:if="${post.isSticky != null and post.isSticky == 1}"
+                class="label label-danger pull-right"
+                style="margin-left: 5px"
+              >
+                <span class="glyphicon glyphicon-pushpin"></span> 置顶
+              </span>
+              <span th:switch="${post.category}">
+                <span
+                  th:case="'娱乐'"
+                  class="label label-success pull-right"
+                  th:text="${post.category}"
+                  >娱乐</span
+                >
+                <span
+                  th:case="'技术'"
+                  class="label label-primary pull-right"
+                  th:text="${post.category}"
+                  >技术</span
+                >
+                <span
+                  th:case="'美食'"
+                  class="label label-warning pull-right"
+                  th:text="${post.category}"
+                  >美食</span
+                >
+                <span
+                  th:case="'旅游'"
+                  class="label label-info pull-right"
+                  th:text="${post.category}"
+                  >旅游</span
+                >
+                <span
+                  th:case="'问题'"
+                  class="label label-danger pull-right"
+                  th:text="${post.category}"
+                  >问题</span
+                >
+                <span
+                  th:case="*"
+                  class="label label-default pull-right"
+                  th:text="${post.category}"
+                  >其他</span
+                >
+              </span>
             </div>
+            <div class="panel-body">
+              <!-- 封面图片显示 -->
+              <div
+                th:if="${post.path != null and !post.path.isEmpty()}"
+                style="margin-bottom: 15px"
+              >
+                <img
+                  th:src="${post.path}"
+                  alt="封面图片"
+                  style="
+                    max-width: 100%;
+                    height: auto;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                  "
+                  onerror="
+                    this.src =
+                      'https://via.placeholder.com/600x300/e0e0e0/666?text=No+Image'
+                  "
+                />
+              </div>
+              <!-- 帖子内容 -->
+              <div th:utext="${post.pbody}">
+                帖子内容<br />
+                帖子内容<br />
+                帖子内容<br />
+
+                帖子内容<br />
+              </div>
+            </div>
+            <div class="panel-footer" style="height: 40px">
+              <div class="col-xs-2">
+                <div style="display: flex; align-items: center">
+                  <div style="position: relative; display: inline-block; margin-right: 5px;">
+                    <img
+                      th:src="${post.user.path} ?: 'https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/default_face.jpg'"
+                      style="
+                        width: 24px;
+                        height: 24px;
+                        border-radius: 50%;
+                        object-fit: cover;
+                        cursor: pointer;
+                      "
+                      th:onclick="'showUserProfile('+${post.user.uid}+')'"
+                      th:title="'点击查看'+${post.user.uname}+'的资料'"
+                      onerror="
+                        this.src =
+                          'https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/default_face.jpg'
+                      "
+                    />
+                    <span th:if="${post.user.verified == 1}"
+                          style="position: absolute; bottom: -2px; right: -2px; width: 14px; height: 14px; background: #4A90D9; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center; font-size: 9px; color: white; font-weight: bold; line-height: 1;">V</span>
+                  </div>
+                  <span
+                    class="text-info"
+                    style="cursor: pointer"
+                    th:onclick="'showUserProfile('+${post.user.uid}+')'"
+                    th:title="'点击查看'+${post.user.uname}+'的资料'"
+                    th:text="|发帖用户:${post.user.uname}|"
+                    >发帖用户:xxx</span
+                  >
+                </div>
+              </div>
+              <div class="col-xs-6">
+                <span
+                  class="text-primary"
+                  th:text="|发帖时间:${#dates.format(post.psendtime,'yyyy-MM-dd HH:mm:ss')}|"
+                  >发帖时间:2019-2-5-08:00:00</span
+                >
+              </div>
+              <div class="col-xs-2">
+                <span class="badge" th:text="|回复数:${post.replyCount}|"
+                  >回复数:111</span
+                >
+              </div>
+              <div class="col-xs-2">
+                <span class="badge" th:text="|收藏:${post.favoriteCount}|"
+                  >收藏:0</span
+                >
+              </div>
+              <div class="col-xs-1">
+                <button
+                  type="button"
+                  th:if="${session.user!=null}"
+                  class="btn btn-primary btn-xs"
+                  th:data-toggle="${post.pid == 12 or post.pid == 3} ? '' : 'modal'"
+                  th:data-target="${post.pid == 12 or post.pid == 3} ? '' : '#myModal'"
+                  th:onclick="${post.pid == 12 or post.pid == 3} ? 'alert(\'该帖子已被锁定，无法修改\')' : ''"
+                >
+                  回复
+                </button>
+              </div>
+              <div
+                class="pull-right"
+                th:if="${post.pid == 12}"
+                style="margin-right: 10px"
+              >
+                <button
+                  type="button"
+                  class="btn btn-danger btn-lg"
+                  style="font-size: 24px; padding: 12px 30px"
+                  onclick="startCritique()"
+                >
+                  狠狠批评
+                </button>
+              </div>
+              <div class="col-xs-1" th:if="${session.user!=null}">
+                <button
+                  type="button"
+                  class="btn btn-warning btn-xs favorite-btn"
+                  th:if="${post.isFavorited==null or !post.isFavorited}"
+                  th:onclick="${post.pid == 12 or post.pid == 3} ? 'alert(\'该帖子已被锁定，无法修改\')' : 'addFavorite('+${post.pid}+')'"
+                >
+                  <span class="glyphicon glyphicon-star-empty"></span> 收藏
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-danger btn-xs favorite-btn favorited"
+                  th:if="${post.isFavorited!=null and post.isFavorited}"
+                  th:onclick="${post.pid == 12 or post.pid == 3} ? 'alert(\'该帖子已被锁定，无法修改\')' : 'removeFavorite('+${post.pid}+')'"
+                >
+                  <span class="glyphicon glyphicon-star"></span> 取消收藏
+                </button>
+              </div>
+              <div
+                class="col-xs-1"
+                th:if="${session.user!=null}?(${session.user.uid == post.user.uid}?true:${session.user.level==0}):false"
+              >
+                <a
+                  th:href="|/delete/${post.pid}|"
+                  th:onclick="${post.pid == 12 or post.pid == 3} ? 'alert(\'该帖子已被锁定，无法修改\');return false;' : 'return confirm(\'确定要删除这个帖子吗？删除后无法恢复！\');'"
+                >
+                  <button type="button" class="btn btn-primary btn-xs">
+                    删除
+                  </button>
+                </a>
+              </div>
+              <div
+                class="col-xs-1"
+                th:if="${session.user!=null and session.user.level==0}"
+              >
+                <a
+                  th:if="${post.isSticky != null and post.isSticky == 1}"
+                  th:href="${post.pid == 12 or post.pid == 3} ? 'javascript:alert(\'该帖子已被锁定，无法修改\')' : |javascript:toggleSticky(${post.pid}, 'unsticky')|"
+                >
+                  <button type="button" class="btn btn-warning btn-xs">
+                    <span class="glyphicon glyphicon-arrow-down"></span>
+                    取消置顶
+                  </button>
+                </a>
+                <a
+                  th:if="${post.isSticky == null or post.isSticky == 0}"
+                  th:href="${post.pid == 12 or post.pid == 3} ? 'javascript:alert(\'该帖子已被锁定，无法修改\')' : |javascript:toggleSticky(${post.pid}, 'sticky')|"
+                >
+                  <button type="button" class="btn btn-success btn-xs">
+                    <span class="glyphicon glyphicon-arrow-up"></span> 置顶
+                  </button>
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
-    </div>
+      </div>
 
-
-    <div class="row" th:each="r,status:${page.modelList}">
+      <!-- 彩蛋：帖子ID为12时显示音乐播放器 -->
+      <div class="row" th:if="${post.pid == 12}">
         <div class="col-xs-12">
-            <div class="panel panel-info" th:classappend="${r.isSticky != null and r.isSticky == 1}?'panel-warning':''">
-                <div class="panel-heading" th:if="${r.isSticky != null and r.isSticky == 1}">
-                    <span class="label label-danger">
-                        <span class="glyphicon glyphicon-pushpin"></span> 置顶回复
-                    </span>
+          <div class="panel panel-info">
+            <div class="panel-body" style="padding: 8px 15px">
+              <div style="display: flex; align-items: center; gap: 10px">
+                <img
+                  id="musicCover"
+                  src="https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/music.jpg"
+                  alt="音乐封面"
+                  style="
+                    width: 60px;
+                    height: 60px;
+                    cursor: pointer;
+                    border-radius: 4px;
+                    object-fit: cover;
+                    flex-shrink: 0;
+                  "
+                  onclick="togglePlay()"
+                />
+                <button
+                  id="playBtn"
+                  onclick="togglePlay()"
+                  style="
+                    width: 36px;
+                    height: 36px;
+                    border: none;
+                    border-radius: 50%;
+                    background: #5bc0de;
+                    color: #fff;
+                    font-size: 16px;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                  "
+                >
+                  ▶
+                </button>
+                <select
+                  id="songSelector"
+                  style="
+                    height: 30px;
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    padding: 0 4px;
+                    font-size: 13px;
+                    flex-shrink: 0;
+                  "
+                >
+                  <option value="0">CHAIN2NITE</option>
+                  <option value="1">Cosmogyral</option>
+                </select>
+                <div
+                  style="flex: 1; display: flex; align-items: center; gap: 8px"
+                >
+                  <input
+                    type="range"
+                    id="progressBar"
+                    min="0"
+                    max="100"
+                    value="0"
+                    style="flex: 1; height: 4px; cursor: pointer"
+                  />
+                  <span
+                    id="timeDisplay"
+                    style="color: #999; font-size: 12px; white-space: nowrap"
+                    >0:00 / 0:00</span
+                  >
                 </div>
-                <div class="panel-body" th:utext="${r.replymessage}">
-                    回复
+                <audio id="musicPlayer" preload="none"></audio>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row" th:each="r,status:${page.modelList}">
+        <div class="col-xs-12">
+          <div
+            class="panel panel-info"
+            th:classappend="${r.isSticky != null and r.isSticky == 1}?'panel-warning':''"
+          >
+            <div
+              class="panel-heading"
+              th:if="${r.isSticky != null and r.isSticky == 1}"
+            >
+              <span class="label label-danger">
+                <span class="glyphicon glyphicon-pushpin"></span> 置顶回复
+              </span>
+            </div>
+            <div class="panel-body" th:utext="${r.replymessage}">回复</div>
+            <div
+              class="panel-footer"
+              th:style="${post.pid == 3 and r.isSticky != null and r.isSticky == 1} ? 'height: 70px;position:relative' : 'height: 40px'"
+            >
+              <div
+                th:if="${post.pid == 3 and r.isSticky != null and r.isSticky == 1}"
+                style="
+                  position: absolute;
+                  right: 15px;
+                  top: 50%;
+                  transform: translateY(-50%);
+                  z-index: 10;
+                "
+              >
+                <button
+                  type="button"
+                  class="btn btn-warning"
+                  id="agreeBtn"
+                  style="font-size: 32px; padding: 16px 40px"
+                  onclick="startAgree(event)"
+                >
+                  狠狠认同
+                </button>
+              </div>
+              <div class="col-xs-2">
+                <div style="display: flex; align-items: center">
+                  <div style="position: relative; display: inline-block; margin-right: 5px;">
+                    <img
+                      th:src="${r.user.path} ?: 'https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/default_face.jpg'"
+                      style="
+                        width: 24px;
+                        height: 24px;
+                        border-radius: 50%;
+                        object-fit: cover;
+                        cursor: pointer;
+                      "
+                      th:onclick="'showUserProfile('+${r.user.uid}+')'"
+                      th:title="'点击查看'+${r.user.uname}+'的资料'"
+                      onerror="
+                        this.src =
+                          'https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/default_face.jpg'
+                      "
+                    />
+                    <span th:if="${r.user.verified == 1}"
+                          style="position: absolute; bottom: -2px; right: -2px; width: 14px; height: 14px; background: #4A90D9; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center; font-size: 9px; color: white; font-weight: bold; line-height: 1;">V</span>
+                  </div>
+                  <span
+                    class="text-info"
+                    style="cursor: pointer"
+                    th:onclick="'showUserProfile('+${r.user.uid}+')'"
+                    th:title="'点击查看'+${r.user.uname}+'的资料'"
+                    th:text="|回复用户:${r.user.uname}|"
+                    >用户:xxx</span
+                  >
                 </div>
-                <div class="panel-footer" style="height: 40px;">
-                    <div class="col-xs-2">
-                        <div style="display: flex; align-items: center;">
-                            <img th:src="${r.user.path} ?: 'https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/default_face.jpg'"
-                                 style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; margin-right: 5px;"
-                                 onerror="this.src='https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/default_face.jpg'">
-                            <span class="text-info" th:text="|回复用户:${r.user.uname}|">用户:xxx</span>
-                        </div>
-                    </div>
-                    <div class="col-xs-4">
-                        <span class="text-primary" th:text="|回复时间:${#dates.format(r.replytime,'yyyy-MM-dd HH:mm:ss')}|">回复时间:2019-2-5-08:00:00</span>
-                    </div>
-                    <div class="col-xs-2">
-                        <span class="text-info"
-                              th:text="|${status.count+(page.showCount*((page.currentPage)-1))}楼|">1楼</span>
-                    </div>
-                    <div class="col-xs-1" th:if="${session.user!=null}">
-                        <!-- 显示删除按钮的条件：
+              </div>
+              <div class="col-xs-4">
+                <span
+                  class="text-primary"
+                  th:text="|回复时间:${#dates.format(r.replytime,'yyyy-MM-dd HH:mm:ss')}|"
+                  >回复时间:2019-2-5-08:00:00</span
+                >
+              </div>
+              <div class="col-xs-2">
+                <span
+                  class="text-info"
+                  th:text="|${status.count+(page.showCount*((page.currentPage)-1))}楼|"
+                  >1楼</span
+                >
+              </div>
+              <div class="col-xs-1" th:if="${session.user!=null}">
+                <!-- 显示删除按钮的条件：
                              1. 管理员可以删除任何回复
                              2. 帖子创建者可以删除该帖子的所有回复
                              3. 回复者可以删除自己的回复
                         -->
-                        <a th:if="${session.user.level==0 || isPostCreator || session.user.uid == r.user.uid}"
-                           th:href="|javascript:deleteReply(${r.rid})|">
-                            <button type="button" class="btn btn-danger btn-xs">
-                                <span class="glyphicon glyphicon-trash"></span> 删除
-                            </button>
-                        </a>
-                    </div>
-                    <div class="col-xs-3" th:if="${session.user!=null and isPostCreator}">
-                        <a th:if="${r.isSticky != null and r.isSticky == 1}" th:href="|javascript:toggleReplySticky(${r.rid}, ${post.pid}, 'unsticky')|">
-                            <button type="button" class="btn btn-warning btn-xs">
-                                <span class="glyphicon glyphicon-arrow-down"></span> 取消置顶
-                            </button>
-                        </a>
-                        <a th:if="${r.isSticky == null or r.isSticky == 0}" th:href="|javascript:toggleReplySticky(${r.rid}, ${post.pid}, 'sticky')|">
-                            <button type="button" class="btn btn-success btn-xs">
-                                <span class="glyphicon glyphicon-arrow-up"></span> 置顶
-                            </button>
-                        </a>
-                    </div>
-                </div>
+                <a
+                  th:if="${session.user.level==0 || isPostCreator || session.user.uid == r.user.uid}"
+                  th:href="${post.pid == 12 or post.pid == 3} ? 'javascript:alert(\'该帖子已被锁定，无法修改\')' : |javascript:deleteReply(${r.rid})|"
+                >
+                  <button type="button" class="btn btn-danger btn-xs">
+                    <span class="glyphicon glyphicon-trash"></span> 删除
+                  </button>
+                </a>
+              </div>
+              <div
+                class="col-xs-3"
+                th:if="${session.user!=null and isPostCreator}"
+              >
+                <a
+                  th:if="${r.isSticky != null and r.isSticky == 1}"
+                  th:href="${post.pid == 12 or post.pid == 3} ? 'javascript:alert(\'该帖子已被锁定，无法修改\')' : |javascript:toggleReplySticky(${r.rid}, ${post.pid}, 'unsticky')|"
+                >
+                  <button type="button" class="btn btn-warning btn-xs">
+                    <span class="glyphicon glyphicon-arrow-down"></span>
+                    取消置顶
+                  </button>
+                </a>
+                <a
+                  th:if="${r.isSticky == null or r.isSticky == 0}"
+                  th:href="${post.pid == 12 or post.pid == 3} ? 'javascript:alert(\'该帖子已被锁定，无法修改\')' : |javascript:toggleReplySticky(${r.rid}, ${post.pid}, 'sticky')|"
+                >
+                  <button type="button" class="btn btn-success btn-xs">
+                    <span class="glyphicon glyphicon-arrow-up"></span> 置顶
+                  </button>
+                </a>
+              </div>
             </div>
+          </div>
         </div>
-    </div>
+      </div>
 
-
-    <div class="row">
-
+      <div class="row">
         <div class="col-xs-12">
-            <nav>
-                <ul class="pager">
-                    <li class="previous" th:if="${page.currentPage!=1}"><a th:href="|?page=${page.currentPage-1}|"><span
-                            aria-hidden="true">&larr;</span> 上一页</a></li>
-                    <li class="text-primary" th:text="|当前第${page.currentPage}页，共${page.pageTotal}页|">当前第1页，共4页</li>
-                    <li class="next" th:if="${(page.currentPage!=page.pageTotal)and(page.pageTotal!=0)}"><a
-                            th:href="|?page=${page.currentPage+1}|">下一页<span aria-hidden="true">&rarr;</span></a></li>
-                </ul>
-            </nav>
+          <nav>
+            <ul class="pager">
+              <li class="previous" th:if="${page.currentPage!=1}">
+                <a th:href="|?page=${page.currentPage-1}|"
+                  ><span aria-hidden="true">&larr;</span> 上一页</a
+                >
+              </li>
+              <li
+                class="text-primary"
+                th:text="|当前第${page.currentPage}页，共${page.pageTotal}页|"
+              >
+                当前第1页，共4页
+              </li>
+              <li
+                class="next"
+                th:if="${(page.currentPage!=page.pageTotal)and(page.pageTotal!=0)}"
+              >
+                <a th:href="|?page=${page.currentPage+1}|"
+                  >下一页<span aria-hidden="true">&rarr;</span></a
+                >
+              </li>
+            </ul>
+          </nav>
         </div>
-
+      </div>
     </div>
 
-</div>
-
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-    <div class="modal-dialog">
+    <div
+      class="modal fade"
+      id="myModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="myModalLabel"
+    >
+      <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <button data-dismiss="modal" class="close" type="button"><span aria-hidden="true">×</span><span
-                        class="sr-only">Close</span></button>
-                <h4 class="modal-title">回帖</h4>
+          <div class="modal-header">
+            <button data-dismiss="modal" class="close" type="button">
+              <span aria-hidden="true">×</span
+              ><span class="sr-only">Close</span>
+            </button>
+            <h4 class="modal-title">回帖</h4>
+          </div>
+          <input type="hidden" id="pid" th:value="${post.pid}" />
+          <div class="modal-body">
+            <textarea
+              class="form-control"
+              id="replyMessage"
+              style="height: 100px"
+            ></textarea>
+          </div>
+          <div class="modal-footer">
+            <button data-dismiss="modal" class="btn btn-default" type="button">
+              关闭
+            </button>
+            <button class="btn btn-primary" type="button" id="sendReply">
+              回复
+            </button>
+          </div>
+        </div>
+        <!-- /.modal-content -->
+      </div>
+      <!-- /.modal-dialog -->
+    </div>
+    <div
+      class="modal fade"
+      id="critiqueModal"
+      tabindex="-1"
+      role="dialog"
+      th:if="${post.pid == 12}"
+    >
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <div class="modal-body" style="text-align: center; padding: 20px">
+            <div style="margin-bottom: 15px; text-align: left">
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  margin-bottom: 5px;
+                "
+              >
+                <span style="font-size: 12px; color: #d9534f; font-weight: bold"
+                  >怒气值</span
+                >
+                <span
+                  id="critiqueProgressText"
+                  style="font-size: 12px; color: #999"
+                  >0/10</span
+                >
+              </div>
+              <div
+                style="
+                  height: 8px;
+                  background: #eee;
+                  border-radius: 4px;
+                  overflow: hidden;
+                "
+              >
+                <div
+                  id="critiqueProgressBar"
+                  style="
+                    height: 100%;
+                    width: 0%;
+                    background: linear-gradient(90deg, #d9534f, #c9302c);
+                    border-radius: 4px;
+                    transition: width 0.3s;
+                  "
+                ></div>
+              </div>
             </div>
-            <input type="hidden" id="pid" th:value="${post.pid}"/>
-            <div class="modal-body">
-                <textarea class="form-control" id="replyMessage" style="height: 100px"></textarea>
+            <p
+              id="critiqueQuestion"
+              style="
+                font-size: 16px;
+                font-weight: bold;
+                color: #333;
+                margin-bottom: 5px;
+                margin-top: 10px;
+              "
+            >
+              真的要批评吗？
+            </p>
+            <p
+              id="critiqueCost"
+              style="font-size: 12px; color: #d9534f; margin-bottom: 20px"
+            >
+              消耗10积分（当前剩余<span id="userScoreDisplay">100000</span
+              >积分）
+            </p>
+            <div
+              id="critiqueOptions"
+              style="
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 10px;
+              "
+            ></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="modal fade"
+      id="musicConfirmModal"
+      tabindex="-1"
+      role="dialog"
+      th:if="${post.pid == 12}"
+    >
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <div
+            class="modal-body"
+            style="text-align: center; padding: 30px 20px"
+          >
+            <p
+              style="
+                font-size: 16px;
+                font-weight: bold;
+                color: #d9534f;
+                margin-bottom: 25px;
+              "
+            >
+              佩戴耳机！调低音量！
+            </p>
+            <button
+              type="button"
+              class="btn btn-success"
+              id="musicPlayBtn"
+              style="margin-right: 10px; min-width: 100px"
+            >
+              我准备好了
+            </button>
+            <button
+              type="button"
+              class="btn btn-default"
+              data-dismiss="modal"
+              style="min-width: 100px"
+            >
+              wait,wait
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="modal fade"
+      id="musicPaymentModal"
+      tabindex="-1"
+      role="dialog"
+      th:if="${post.pid == 12}"
+    >
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <div
+            class="modal-body"
+            style="text-align: center; padding: 30px 20px"
+          >
+            <p
+              style="
+                font-size: 16px;
+                font-weight: bold;
+                color: #d9534f;
+                margin-bottom: 25px;
+              "
+            >
+              你必须向我支付播放此音乐的费用（5积分）
+            </p>
+            <button
+              type="button"
+              class="btn btn-success"
+              id="payBtn"
+              style="margin-right: 10px; min-width: 100px"
+            >
+              支付5积分
+            </button>
+            <button
+              type="button"
+              class="btn btn-default"
+              data-dismiss="modal"
+              style="min-width: 100px"
+            >
+              取消
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="modal fade"
+      id="musicJokeModal"
+      tabindex="-1"
+      role="dialog"
+      th:if="${post.pid == 12}"
+    >
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <div
+            class="modal-body"
+            style="text-align: center; padding: 30px 20px"
+          >
+            <p
+              style="
+                font-size: 16px;
+                font-weight: bold;
+                color: #5bc0de;
+                margin-bottom: 25px;
+              "
+            >
+              逗你的，不需要
+            </p>
+            <button
+              type="button"
+              class="btn btn-info"
+              id="jokeConfirmBtn"
+              style="min-width: 100px"
+            >
+              确定
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script th:if="${post.pid == 12}" th:inline="javascript">
+      var songs = [
+        {
+          name: "CHAIN2NITE",
+          cover:
+            "https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/music.jpg",
+          src: "https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/music.mp3",
+        },
+        {
+          name: "Cosmogyral",
+          cover:
+            "https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/music2.jpg",
+          src: "https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/music2.mp3",
+        },
+      ];
+      var currentSongIdx = 0;
+      var musicPlaying = false;
+      var isSeeking = false;
+      var musicHasBeenPlayed = false;
+      var redirectToVideo = /*[[${videoRedirectEnabled}]]*/ true;
+      var isLoggedIn = /*[[${session.user != null}]]*/ false;
+      var userScore = /*[[${session.user != null ? session.user.score : 0}]]*/ 0;
+
+      function loadSong(index) {
+        var player = document.getElementById("musicPlayer");
+        player.pause();
+        player.src = songs[index].src;
+        player.load();
+        document.getElementById("musicCover").src = songs[index].cover;
+        musicPlaying = false;
+        document.getElementById("playBtn").textContent = "▶";
+        document.getElementById("progressBar").value = 0;
+        document.getElementById("timeDisplay").textContent = "0:00 / 0:00";
+      }
+
+      document.getElementById("songSelector").onchange = function () {
+        var idx = parseInt(this.value);
+        if (idx !== currentSongIdx) {
+          currentSongIdx = idx;
+          loadSong(idx);
+        }
+      };
+
+      function playDirectly() {
+        if (confirm("曲风比较炸裂，建议佩戴耳机并调低音量")) {
+          $("#musicConfirmModal").modal("show");
+        }
+      }
+
+      function togglePlay() {
+        var player = document.getElementById("musicPlayer");
+        if (musicPlaying) {
+          player.pause();
+        } else {
+          if (!player.src || player.src === window.location.href) {
+            player.src = songs[currentSongIdx].src;
+            player.load();
+          }
+          if (musicHasBeenPlayed) {
+            playDirectly();
+          } else {
+            $("#musicPaymentModal").modal("show");
+          }
+        }
+      }
+
+      document.getElementById("payBtn").onclick = function () {
+        $("#musicPaymentModal").modal("hide");
+        $("#musicJokeModal").modal("show");
+      };
+
+      document.getElementById("jokeConfirmBtn").onclick = function () {
+        $("#musicJokeModal").modal("hide");
+        playDirectly();
+      };
+
+      document.getElementById("musicPlayBtn").onclick = function () {
+        $("#musicConfirmModal").modal("hide");
+        var player = document.getElementById("musicPlayer");
+        player.volume = 0.15;
+        player
+          .play()
+          .then(function () {
+            musicPlaying = true;
+            musicHasBeenPlayed = true;
+            document.getElementById("playBtn").textContent = "⏸";
+          })
+          .catch(function (e) {
+            alert("播放失败，请稍后重试");
+          });
+      };
+
+      document.getElementById("musicPlayer").ontimeupdate = function () {
+        if (isSeeking) return;
+        var player = document.getElementById("musicPlayer");
+        if (player.duration) {
+          document.getElementById("progressBar").value =
+            (player.currentTime / player.duration) * 100;
+          document.getElementById("timeDisplay").textContent =
+            formatTime(player.currentTime) +
+            " / " +
+            formatTime(player.duration);
+        }
+      };
+
+      document.getElementById("musicPlayer").onloadedmetadata = function () {
+        var player = document.getElementById("musicPlayer");
+        document.getElementById("timeDisplay").textContent =
+          "0:00 / " + formatTime(player.duration);
+      };
+
+      document.getElementById("progressBar").oninput = function () {
+        isSeeking = true;
+        var player = document.getElementById("musicPlayer");
+        if (player.duration) {
+          player.currentTime = (this.value / 100) * player.duration;
+        }
+      };
+
+      document.getElementById("progressBar").onchange = function () {
+        isSeeking = false;
+      };
+
+      document.getElementById("musicPlayer").onended = function () {
+        musicPlaying = false;
+        document.getElementById("playBtn").textContent = "▶";
+        document.getElementById("progressBar").value = 0;
+        var player = document.getElementById("musicPlayer");
+        document.getElementById("timeDisplay").textContent =
+          "0:00 / " + formatTime(player.duration);
+      };
+
+      document.getElementById("musicPlayer").onpause = function () {
+        if (musicPlaying) {
+          musicPlaying = false;
+          document.getElementById("playBtn").textContent = "▶";
+        }
+      };
+
+      function formatTime(seconds) {
+        if (isNaN(seconds)) return "0:00";
+        var m = Math.floor(seconds / 60);
+        var s = Math.floor(seconds % 60);
+        return m + ":" + (s < 10 ? "0" : "") + s;
+      }
+
+      var critiqueStep = 1;
+      var critiqueCorrect = 0;
+
+      var colorPalette = [
+        "#d9534f",
+        "#5cb85c",
+        "#f0ad4e",
+        "#9370db",
+        "#5bc0de",
+        "#e67e22",
+        "#2ecc71",
+        "#e74c3c",
+      ];
+
+      var critiqueSteps = [
+        {
+          options: [
+            { text: "狠狠批评", bg: "#d9534f", correct: true },
+            { text: "同情一下", bg: "#5cb85c", correct: false },
+          ],
+        },
+        {
+          options: [
+            { text: "狠狠批评", bg: "#d9534f", correct: true },
+            { text: "同情一下", bg: "#5cb85c", correct: false },
+          ],
+        },
+        {
+          options: [
+            { text: "狠狠批评", bg: "#d9534f", correct: true },
+            { text: "同情一下", bg: "#5cb85c", correct: false },
+          ],
+        },
+        {
+          options: [
+            { text: "同情一下", bg: "#d9534f", correct: false },
+            { text: "狠狠批评", bg: "#5cb85c", correct: true },
+          ],
+        },
+        {
+          options: [
+            { text: "同情一下", bg: "#d9534f", correct: false },
+            { text: "狠狠批评", bg: "#5cb85c", correct: true },
+          ],
+        },
+        {
+          options: [
+            { text: "轻点批", correct: false },
+            { text: "重拳出击", correct: true },
+            { text: "路过", correct: false },
+          ],
+        },
+        {
+          options: [
+            { text: "算了", correct: false },
+            { text: "严厉批评", correct: true },
+          ],
+        },
+        {
+          options: [
+            { text: "放他一马", correct: false },
+            { text: "从重发落", correct: true },
+            { text: "纠结中", correct: false },
+          ],
+        },
+        {
+          options: [
+            { text: "同情", correct: false },
+            { text: "批到哭", correct: true },
+          ],
+        },
+        {
+          options: [
+            { text: "给次机会", correct: false },
+            { text: "再说吧", correct: false },
+            { text: "绝不留情", correct: true },
+            { text: "我全都要", correct: false },
+          ],
+        },
+      ];
+
+      function shuffle(arr) {
+        for (var i = arr.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var tmp = arr[i];
+          arr[i] = arr[j];
+          arr[j] = tmp;
+        }
+        return arr;
+      }
+
+      function randomColor() {
+        return colorPalette[Math.floor(Math.random() * colorPalette.length)];
+      }
+
+      function startCritique() {
+        if (!isLoggedIn) {
+          alert("登录后才能批评");
+          $("#loginModal").modal("show");
+          return;
+        }
+        critiqueStep = 1;
+        critiqueCorrect = 0;
+        document.getElementById("userScoreDisplay").textContent = userScore;
+        for (var s = 5; s < critiqueSteps.length; s++) {
+          shuffle(critiqueSteps[s].options);
+          for (var o = 0; o < critiqueSteps[s].options.length; o++) {
+            critiqueSteps[s].options[o].bg = randomColor();
+          }
+        }
+        showCritiqueStep();
+        $("#critiqueModal").modal("show");
+      }
+
+      function showCritiqueStep() {
+        var step = critiqueSteps[critiqueStep - 1];
+        document.getElementById("critiqueProgressText").textContent =
+          critiqueCorrect + "/10";
+        document.getElementById("critiqueProgressBar").style.width =
+          critiqueCorrect * 10 + "%";
+
+        var container = document.getElementById("critiqueOptions");
+        container.innerHTML = "";
+        for (var i = 0; i < step.options.length; i++) {
+          var opt = step.options[i];
+          var btn = document.createElement("button");
+          btn.type = "button";
+          btn.textContent = opt.text;
+          btn.style.cssText =
+            "padding: 8px 18px; border: none; border-radius: 4px; color: #fff; font-size: 14px; cursor: pointer; background: " +
+            opt.bg +
+            ";";
+          btn.onclick = (function (correct) {
+            return function () {
+              handleCritiqueAnswer(correct);
+            };
+          })(opt.correct);
+          container.appendChild(btn);
+        }
+      }
+
+      function handleCritiqueAnswer(correct) {
+        if (correct) {
+          $.post("/critique/deduct", function (data) {
+            if (data.success) {
+              userScore = data.newScore;
+              document.getElementById("userScoreDisplay").textContent =
+                userScore;
+              critiqueCorrect++;
+              if (critiqueStep >= 10) {
+                $("#critiqueModal").modal("hide");
+                showCompleteMessage();
+                return;
+              }
+              critiqueStep++;
+              showCritiqueStep();
+            } else {
+              alert(data.message);
+            }
+          });
+        } else {
+          $("#critiqueModal").modal("hide");
+        }
+      }
+
+      function showCompleteMessage() {
+        var div = document.createElement("div");
+        div.id = "critiqueCompleteMsg";
+        div.style.cssText =
+          "position:fixed;top:0;left:0;width:100%;height:100%;z-index:99999;background:rgba(0,0,0,0.85);display:flex;flex-direction:column;align-items:center;justify-content:center;";
+        div.innerHTML =
+          '<div style="font-size:48px;margin-bottom:20px;">😤😡🤬</div><div style="font-size:22px;color:#fff;font-weight:bold;">你算老几啊，你还批评上了</div><div style="font-size:14px;color:#999;margin-top:16px;">有你好果子吃</div>';
+        document.body.appendChild(div);
+        var link = document.createElement("link");
+        link.rel = "preload";
+        link.as = "video";
+        link.href =
+          "https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/video.mp4";
+        document.head.appendChild(link);
+        setTimeout(function () {
+          window.location.href = redirectToVideo
+            ? "/video/12"
+            : "/post/12.html";
+        }, 3000);
+      }
+    </script>
+    <script th:if="${post.pid == 3}" th:inline="javascript">
+      var agreeLoggedIn = /*[[${session.user != null}]]*/ false;
+
+      function startAgree(event) {
+        var phrases = [
+          { text: "太对了", color: "#d9534f" },
+          { text: "这份力量不属于你", color: "#5cb85c" },
+          { text: "我们也是", color: "#f0ad4e" },
+          { text: "谁不是呢", color: "#5bc0de" },
+          { text: "无法反驳", color: "#428bca" },
+          { text: "ai还是太好用了", color: "#8e44ad" },
+          { text: "谁还古法编程啊", color: "#e67e22" },
+          { text: "没有一行代码属于我自己", color: "#2ecc71" },
+          { text: "ai还是太好用了", color: "#e74c3c" },
+          { text: "离了ai我啥都不是", color: "#3498db" },
+        ];
+        var btn = event.currentTarget;
+        var rect = btn.getBoundingClientRect();
+        var idx = Math.floor(Math.random() * phrases.length);
+        var el = document.createElement("div");
+        el.className = "agree-float";
+        el.textContent = phrases[idx].text + "+10积分";
+        el.style.color = phrases[idx].color;
+        el.style.left = rect.left + rect.width / 2 - 40 + "px";
+        el.style.top = rect.top - 10 + "px";
+        document.body.appendChild(el);
+        setTimeout(function () {
+          el.remove();
+        }, 1500);
+        if (agreeLoggedIn) {
+          $.post("/agree/add");
+        }
+      }
+    </script>
+    <div class="modal fade" id="userProfileModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <div class="modal-body" style="text-align: center; padding: 25px">
+            <div id="userProfileAvatarWrapper" style="position: relative; display: inline-block;">
+              <img
+                id="userProfileAvatar"
+                src=""
+                alt="头像"
+                style="
+                  width: 80px;
+                  height: 80px;
+                  border-radius: 50%;
+                  object-fit: cover;
+                  margin-bottom: 10px;
+                  border: 2px solid #eee;
+                "
+                onerror="
+                  this.src =
+                    'https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/default_face.jpg'
+                "
+              />
+              <span id="userProfileBadge" style="display: none; position: absolute; bottom: 2px; right: 2px; width: 22px; height: 22px; background: #4A90D9; border-radius: 50%; border: 2px solid white; align-items: center; justify-content: center; font-size: 13px; color: white; font-weight: bold; line-height: 1;">V</span>
             </div>
-            <div class="modal-footer">
-                <button data-dismiss="modal" class="btn btn-default" type="button">关闭</button>
-                <button class="btn btn-primary" type="button" id="sendReply">回复</button>
+            <h4
+              id="userProfileName"
+              style="margin-bottom: 15px; color: #333"
+            ></h4>
+            <p style="margin: 5px 0; font-size: 14px; color: #666">
+              <strong>联系电话：</strong><span id="userProfilePhone"></span>
+            </p>
+            <p style="margin: 5px 0; font-size: 14px; color: #666">
+              <strong>职业：</strong><span id="userProfileCareer"></span>
+            </p>
+            <p style="margin: 5px 0; font-size: 14px; color: #666">
+              <strong>工作地址：</strong><span id="userProfileAddress"></span>
+            </p>
+            <div id="followBtnContainer" style="margin-top: 15px; display: none;">
+              <button type="button" class="btn btn-primary" id="followBtn" style="display: none;" onclick="handleFollow()">关注</button>
+              <button type="button" class="btn btn-danger" id="unfollowBtn" style="display: none;" onclick="handleUnfollow()">取消关注</button>
             </div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-</div>
-</body>
+            <button
+              type="button"
+              class="btn btn-default"
+              data-dismiss="modal"
+              style="margin-top: 15px"
+            >
+               关闭
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      var currentProfileUid = null;
+      var currentFollowed = false;
+      var currentLoginUid = '/*[[${session.user != null ? session.user.uid : ""}]]*/';
+
+      function showUserProfile(uid) {
+        currentProfileUid = uid;
+        $.get("/user/profile/" + uid, function (data) {
+          if (data.error) {
+            alert(data.error);
+            return;
+          }
+          $("#userProfileAvatar").attr(
+            "src",
+            data.path ||
+              "https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/default_face.jpg",
+          );
+          $("#userProfileName").text(data.uname || "未知用户");
+          $("#userProfilePhone").text(data.phone || "未设置");
+          $("#userProfileCareer").text(data.career || "未设置");
+          $("#userProfileAddress").text(data.address || "未设置");
+          if (data.verified == 1) {
+              $('#userProfileBadge').css('display', 'flex');
+          } else {
+              $('#userProfileBadge').css('display', 'none');
+          }
+          checkFollowStatus(uid);
+          $("#userProfileModal").modal("show");
+        }).fail(function () {
+          alert("获取用户信息失败");
+        });
+      }
+
+      function checkFollowStatus(uid) {
+        if (!currentLoginUid || currentLoginUid == uid) {
+          $('#followBtnContainer').hide();
+          return;
+        }
+        $('#followBtnContainer').show();
+        $.get('/follow/check/' + uid, function(data) {
+          if (data.loggedIn) {
+            currentFollowed = data.isFollowed;
+            $('#followBtn').toggle(!data.isFollowed);
+            $('#unfollowBtn').toggle(data.isFollowed);
+          } else {
+            $('#followBtnContainer').hide();
+          }
+        });
+      }
+
+      function handleFollow() {
+        $.get('/follow/add/' + currentProfileUid, function(data) {
+          alert(data);
+          if (data == '关注成功') {
+            currentFollowed = true;
+            $('#followBtn').hide();
+            $('#unfollowBtn').show();
+          }
+        });
+      }
+
+      function handleUnfollow() {
+        $.get('/follow/remove/' + currentProfileUid, function(data) {
+          alert(data);
+          if (data == '取消关注成功') {
+            currentFollowed = false;
+            $('#followBtn').show();
+            $('#unfollowBtn').hide();
+          }
+        });
+      }
+    </script>
+  </body>
 </html>

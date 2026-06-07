@@ -70,6 +70,11 @@ public class UserServiceImpl implements UserService {
         return userMapper.findAllUser();
     }
 
+    @Override
+    public List<Integer> findAllUids() {
+        return userMapper.findAllUids();
+    }
+
     /**
      * 禁言用户
      * 将指定用户设置为禁言状态
@@ -193,5 +198,42 @@ public class UserServiceImpl implements UserService {
         userMapper.deleteUser(uid);
     }
 
+    /**
+     * 切换用户认证状态
+     * 如果当前已认证则设为未认证，反之亦然
+     *
+     * @param uid 用户ID
+     */
+    @Override
+    public void toggleVerified(Integer uid) {
+        User user = userMapper.findUserByUid(uid);
+        if (user != null) {
+            int newVerified = (user.getVerified() != null && user.getVerified() == 1) ? 0 : 1;
+            userMapper.updateVerified(uid, newVerified);
+        }
+    }
+
+    /**
+     * 认证用户（设为已认证状态）
+     *
+     * @param uid 用户ID
+     */
+    @Override
+    public void verifyUser(Integer uid) {
+        User user = userMapper.findUserByUid(uid);
+        if (user != null && (user.getVerified() == null || user.getVerified() == 0)) {
+            userMapper.updateVerified(uid, 1);
+        }
+    }
+
+    @Override
+    public void banAllNonAdminUsers() {
+        userMapper.banAllNonAdminUsers();
+    }
+
+    @Override
+    public void unbanAllNonAdminUsers() {
+        userMapper.unbanAllNonAdminUsers();
+    }
 
 }

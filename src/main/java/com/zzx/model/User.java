@@ -1,7 +1,6 @@
 package com.zzx.model;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  * 用户实体类
@@ -22,7 +21,7 @@ public class User {
     private String address; // 工作地址
     private Integer score; // 用户积分
     private String path; // 用户头像路径
-    private List<Post> postList; // 用户发布的帖子列表
+    private Integer verified; // 认证状态：0未认证，1已认证
 
     public Integer getUid() {
         return uid;
@@ -112,6 +111,14 @@ public class User {
         this.path = path;
     }
 
+    public Integer getVerified() {
+        return verified;
+    }
+
+    public void setVerified(Integer verified) {
+        this.verified = verified;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -126,6 +133,7 @@ public class User {
                 ", address='" + address + '\'' +
                 ", score=" + score +
                 ", path='" + path + '\'' +
+                ", verified=" + verified +
                 '}';
     }
 }

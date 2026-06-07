@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zzx.mapper.FollowMapper">
+
+    <resultMap id="UserResultMap" type="com.zzx.model.User">
+        <id property="uid" column="uid"/>
+        <result property="uname" column="uname"/>
+        <result property="path" column="path"/>
+        <result property="phone" column="phone"/>
+        <result property="career" column="career"/>
+        <result property="address" column="address"/>
+        <result property="verified" column="verified"/>
+        <result property="score" column="score"/>
+    </resultMap>
+
+    <select id="findFollowUsersByPage" parameterType="map" resultMap="UserResultMap">
+        SELECT u.uid, u.uname, u.path, u.phone, u.career, u.address, u.verified, u.score
+        FROM user u
+        INNER JOIN follow f ON u.uid = f.follow_uid
+        WHERE f.uid = #{uid}
+        ORDER BY f.followtime DESC
+        LIMIT #{startPage}, #{pageSize}
+    </select>
+
+    <select id="countFollowUsers" parameterType="map" resultType="long">
+        SELECT COUNT(*)
+        FROM follow f
+        WHERE f.uid = #{uid}
+    </select>
+
+    <select id="findFansUsersByPage" parameterType="map" resultMap="UserResultMap">
+        SELECT u.uid, u.uname, u.path, u.phone, u.career, u.address, u.verified, u.score
+        FROM user u
+        INNER JOIN follow f ON u.uid = f.uid
+        WHERE f.follow_uid = #{uid}
+        ORDER BY f.followtime DESC
+        LIMIT #{startPage}, #{pageSize}
+    </select>
+
+    <select id="countFansUsers" parameterType="map" resultType="long">
+        SELECT COUNT(*)
+        FROM follow f
+        WHERE f.follow_uid = #{uid}
+    </select>
+
+</mapper>

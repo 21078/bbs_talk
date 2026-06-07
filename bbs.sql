@@ -19,6 +19,7 @@ CREATE TABLE `user` (
   `address` varchar(500) DEFAULT NULL COMMENT '工作地址，可选',
   `score` int(11) DEFAULT 0 COMMENT '用户积分',
   `path` varchar(500) DEFAULT NULL COMMENT '用户头像路径',
+  `verified` int(11) DEFAULT 0 COMMENT '认证状态：0未认证，1已认证',
   PRIMARY KEY (`uid`),
   UNIQUE KEY `unique` (`uname`)
 ) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户表';
@@ -73,6 +74,40 @@ CREATE TABLE `favorite` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='收藏表';
 
 -- ----------------------------
+-- Table structure for follow
+-- ----------------------------
+DROP TABLE IF EXISTS `follow`;
+CREATE TABLE `follow` (
+  `fid` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '关注ID',
+  `uid` int(11) NOT NULL COMMENT '关注者用户ID',
+  `follow_uid` int(11) NOT NULL COMMENT '被关注用户ID',
+  `followtime` datetime NOT NULL COMMENT '关注时间',
+  PRIMARY KEY (`fid`),
+  UNIQUE KEY `unique_follow` (`uid`, `follow_uid`) COMMENT '用户关注唯一约束',
+  KEY `follow_uid` (`follow_uid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='关注表';
+
+-- ----------------------------
+-- Table structure for notification
+-- ----------------------------
+DROP TABLE IF EXISTS `notification`;
+CREATE TABLE `notification` (
+  `nid` int(11) NOT NULL AUTO_INCREMENT COMMENT '通知ID',
+  `uid` int(11) NOT NULL COMMENT '接收通知的用户ID',
+  `type` varchar(20) NOT NULL COMMENT '通知类型：reply/follow/favorite/system',
+  `content` varchar(255) NOT NULL COMMENT '通知内容',
+  `from_uid` int(11) DEFAULT NULL COMMENT '触发者用户ID',
+  `from_uname` varchar(32) DEFAULT NULL COMMENT '触发者用户名',
+  `pid` int(11) DEFAULT NULL COMMENT '关联帖子ID',
+  `ptitle` varchar(100) DEFAULT NULL COMMENT '关联帖子标题',
+  `is_read` int(11) DEFAULT 0 COMMENT '是否已读：0未读，1已读',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`nid`),
+  KEY `idx_uid_read` (`uid`, `is_read`) COMMENT '用户未读索引',
+  KEY `idx_uid_time` (`uid`, `create_time`) COMMENT '用户时间排序索引'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='通知表';
+
+-- ----------------------------
 -- 初始化数据 - user表
 -- ----------------------------
 INSERT INTO `user`(`uid`, `uname`, `upwd`, `ustate`, `ucreatetime`, `level`, `phone`, `career`, `address`, `score`, `path`) VALUES
@@ -87,19 +122,16 @@ INSERT INTO `user`(`uid`, `uname`, `upwd`, `ustate`, `ucreatetime`, `level`, `ph
 INSERT INTO `post`(`pid`, `ptitle`, `pbody`, `psendtime`, `lastreplytime`, `uid`, `category`, `is_sticky`, `prize`) VALUES
 (1, 'Spring Boot入门教程', 'Spring Boot是一个快速开发框架，可以大大简化Spring应用的搭建过程。本文将介绍Spring Boot的基本概念和快速入门方法。', '2026-06-06 10:57:45', '2026-06-06 16:30:00', 1, '技术', 1, 0),
 (2, 'MySQL性能优化技巧', '分享一些MySQL数据库性能优化的实用技巧，包括索引优化、查询优化、配置调优等方面。', '2026-06-06 11:20:15', '2026-06-06 09:45:30', 2, '技术', 1, 0),
-(3, '前端框架对比：React vs Vue', '详细对比React和Vue这两个热门前端框架的优缺点，帮助开发者选择合适的工具。', '2026-06-06 15:30:45', '2026-06-06 10:20:15', 3, '技术', 0, 0),
+(3, '这个项目是谁做的？', '09-老师说的都队-唐浩、赵文熙、陈闽、彭浩、樊世奇。但是一个人做=AI做，一堆人做=AI做，所以', '2026-06-06 15:30:45', '2026-06-06 10:20:15', 3, '问题', 0, 5),
 (4, '最近看的好电影推荐', '最近看了几部不错的电影，想和大家分享一下。《流浪地球2》真的很震撼，特效和剧情都很棒！', '2026-06-06 20:15:30', '2026-06-06 22:10:45', 2, '娱乐', 0, 0),
-(5, '推荐几首好听的歌曲', '分享一些最近单曲循环的歌曲，有民谣、摇滚、流行等各种风格，希望大家喜欢。', '2026-06-06 18:45:20', '2026-06-06 19:30:10', 4, '娱乐', 0, 0),
 (6, '家常红烧肉的做法', '分享一道经典的家常菜红烧肉的制作方法，简单易学，味道鲜美，适合初学者尝试。', '2026-06-06 12:30:15', '2026-06-06 14:20:30', 3, '美食', 1, 0),
-(7, '推荐几家好吃的火锅店', '在北京工作生活了几年，踩过不少坑，也发现了不少宝藏店铺。今天推荐几家个人觉得不错的火锅店。', '2026-06-06 13:45:40', '2026-06-06 21:15:25', 2, '美食', 0, 0),
 (8, '云南大理三日游攻略', '刚从大理回来，景色真的很美！给大家分享一份详细的三日游攻略，包括路线规划、必去景点、美食推荐等。', '2026-06-06 09:20:30', '2026-06-06 17:45:15', 4, '旅游', 0, 0),
-(9, '西藏旅行注意事项', '计划去西藏旅行的朋友们注意了，这里有一些重要的注意事项和准备工作，确保旅途安全顺利。', '2026-06-06 16:30:45', '2026-06-06 20:10:20', 1, '旅游', 0, 0),
-(10, '新手求助：Java环境配置问题', '刚开始学习Java，在配置开发环境时遇到了一些问题，JDK安装后环境变量设置总是出错，求大神指导。', '2026-06-06 14:15:30', '2026-06-06 18:30:45', 3, '问题', 0, 8),
-(11, '关于数据库设计的疑问', '在设计用户表结构时，对于密码字段应该选择什么类型比较合适？需要考虑安全性问题。', '2026-06-06 11:40:20', '2026-06-06 16:55:10', 2, '问题', 0, 5),
+(11, '计算机是新时代天坑吗', '蚌埠住了，头一次见一个专业想找实习居然要自学这么多东西，根本学不完。', '2026-06-06 11:40:20', '2026-06-06 16:55:10', 2, '问题', 0, 5),
 (12, '能玩一辈子音游吗', '感觉大学玩了这么久废了，都怪染上了这种透支身体的游戏，往后怎么办啊。', '2026-06-04 11:40:20', '2026-06-04 16:55:10', 1, '娱乐', 0, 0);
 -- 为一些现有帖子添加测试图片路径
 UPDATE post SET path = 'https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/test-image-1.png' WHERE pid = 1;
 UPDATE post SET path = 'https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/test-image-3.png' WHERE pid = 2;
+UPDATE post SET path = 'https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/test-image-5.png' WHERE pid = 3;
 UPDATE post SET path = 'https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/test-image-2.png' WHERE pid = 6;
 UPDATE post SET path = 'https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/test-image-4.jpg' WHERE pid = 12;
 
@@ -110,17 +142,12 @@ INSERT INTO `reply`(`rid`, `pid`, `uid`, `replymessage`, `replytime`, `is_sticky
 (1, 1, 2, '很不错的教程，对新手很友好，学到了很多！', '2026-06-06 14:30:20', 1),
 (2, 1, 3, 'Spring Boot确实很方便，我们公司项目都在用这个框架。', '2026-06-06 16:45:15', 0),
 (3, 2, 1, '索引优化确实很重要，我们数据库加了合适的索引后查询速度提升了很多。', '2026-06-06 10:20:30', 0),
-(4, 3, 4, 'React和Vue各有优势，个人更喜欢Vue的语法，比较简单直观。', '2026-06-06 18:30:45', 1),
+(4, 3, 1, '很难不认同', '2026-06-06 18:30:45', 1),
 (5, 4, 1, '《流浪地球2》确实很棒，已经二刷了，每次看都有新的感受。', '2026-06-06 23:15:20', 0),
-(6, 5, 3, '民谣推荐陈粒的歌，很有味道。', '2026-06-06 20:45:10', 0),
 (7, 6, 2, '红烧肉的做法很详细，明天就试试，谢谢分享！', '2026-06-06 15:30:25', 0),
-(8, 7, 4, '推荐的那家海底捞确实不错，服务很好，就是人有点多需要排队。', '2026-06-06 22:20:40', 0),
 (9, 8, 1, '大理真的很美，洱海的水特别清澈，推荐住在古城里。', '2026-06-06 18:50:15', 1),
-(10, 9, 2, '去西藏一定要做好高原反应的准备，建议提前一周开始吃红景天。', '2026-06-06 21:25:30', 0),
-(11, 10, 1, '环境变量配置可以参考官方文档，PATH和JAVA_HOME都要设置正确。', '2026-06-06 15:45:20', 0),
-(12, 10, 4, '建议使用IDEA，它会自动帮你配置好大部分环境，对新手很友好。', '2026-06-06 16:20:35', 1),
-(13, 11, 2, '密码建议用varchar类型，存储时一定要加密，推荐使用BCrypt。', '2026-06-06 17:10:45', 1),
-(14, 11, 3, '安全性很重要，除了加密还要考虑防止SQL注入等安全问题。', '2026-06-06 18:15:50', 0),
+(13, 11, 3, '那还说啥了，考公考编考研三件套走起', '2026-06-06 17:10:45', 1),
+(14, 11, 2, '寝室大牛去大厂实习了，和他相比感觉自己就是个只会开关机电脑的猴子，之前应该听劝早点学的，难受💀💀💀', '2026-06-06 18:15:50', 0),
 (15, 12, 2, '埋了吧，没救了，你个三无大学生就算了，还沾上这东西，废了废了。', '2026-06-06 18:15:50', 1);
 -- ----------------------------
 -- 初始化数据 - favorite表
@@ -133,6 +160,44 @@ INSERT INTO `favorite`(`fid`, `uid`, `pid`, `favtime`) VALUES
 (5, 2, 3, '2026-06-06 19:45:20'),
 (6, 3, 4, '2026-06-06 08:30:15'),
 (7, 1, 6, '2026-06-06 16:20:30'),
-(8, 4, 7, '2026-06-06 23:10:40'),
-(9, 2, 8, '2026-06-06 19:25:50'),
-(10, 3, 9, '2026-06-06 22:15:35');
+(9, 2, 8, '2026-06-06 19:25:50');
+
+-- ----------------------------
+-- 初始化数据 - follow表
+-- ----------------------------
+INSERT INTO `follow`(`uid`, `follow_uid`, `followtime`) VALUES
+(2, 1, '2026-06-06 11:00:00'),
+(3, 1, '2026-06-06 11:30:00'),
+(1, 2, '2026-06-06 14:00:00'),
+(3, 2, '2026-06-06 15:00:00'),
+(4, 1, '2026-06-06 16:00:00');
+
+-- ----------------------------
+-- 初始化数据 - notification表
+-- ----------------------------
+INSERT INTO `notification`(`nid`, `uid`, `type`, `content`, `from_uid`, `from_uname`, `pid`, `ptitle`, `is_read`, `create_time`) VALUES
+-- 回复通知
+(1, 1, 'reply', 'u1 回复了你的帖子《Spring Boot入门教程》', 2, 'u1', 1, 'Spring Boot入门教程', 1, '2026-06-06 14:30:20'),
+(2, 1, 'reply', 'u2 回复了你的帖子《Spring Boot入门教程》', 3, 'u2', 1, 'Spring Boot入门教程', 1, '2026-06-06 16:45:15'),
+(3, 2, 'reply', 'admin 回复了你的帖子《MySQL性能优化技巧》', 1, 'admin', 2, 'MySQL性能优化技巧', 1, '2026-06-06 10:20:30'),
+(4, 3, 'reply', 'admin 回复了你的帖子《这个项目是谁做的？》', 1, 'admin', 3, '这个项目是谁做的？', 1, '2026-06-06 18:30:45'),
+(5, 2, 'reply', 'admin 回复了你的帖子《最近看的好电影推荐》', 1, 'admin', 4, '最近看的好电影推荐', 1, '2026-06-06 23:15:20'),
+(6, 3, 'reply', 'u1 回复了你的帖子《家常红烧肉的做法》', 2, 'u1', 6, '家常红烧肉的做法', 1, '2026-06-06 15:30:25'),
+(7, 4, 'reply', 'admin 回复了你的帖子《云南大理三日游攻略》', 1, 'admin', 8, '云南大理三日游攻略', 1, '2026-06-06 18:50:15'),
+(8, 2, 'reply', 'u2 回复了你的帖子《计算机是新时代天坑吗》', 3, 'u2', 11, '计算机是新时代天坑吗', 1, '2026-06-06 17:10:45'),
+(9, 1, 'reply', 'u1 回复了你的帖子《能玩一辈子音游吗》', 2, 'u1', 12, '能玩一辈子音游吗', 1, '2026-06-06 18:15:50'),
+-- 收藏通知
+(10, 1, 'favorite', 'u1 收藏了你的帖子《Spring Boot入门教程》', 2, 'u1', 1, 'Spring Boot入门教程', 1, '2026-06-06 14:32:10'),
+(11, 1, 'favorite', 'u2 收藏了你的帖子《Spring Boot入门教程》', 3, 'u2', 1, 'Spring Boot入门教程', 1, '2026-06-06 17:20:25'),
+(12, 2, 'favorite', 'admin 收藏了你的帖子《MySQL性能优化技巧》', 1, 'admin', 2, 'MySQL性能优化技巧', 1, '2026-06-06 11:15:30'),
+(13, 2, 'favorite', 'u3 收藏了你的帖子《MySQL性能优化技巧》', 4, 'u3', 2, 'MySQL性能优化技巧', 1, '2026-06-06 12:30:45'),
+(14, 3, 'favorite', 'u1 收藏了你的帖子《这个项目是谁做的？》', 2, 'u1', 3, '这个项目是谁做的？', 1, '2026-06-06 19:45:20'),
+(15, 2, 'favorite', 'u2 收藏了你的帖子《最近看的好电影推荐》', 3, 'u2', 4, '最近看的好电影推荐', 1, '2026-06-06 08:30:15'),
+(16, 3, 'favorite', 'admin 收藏了你的帖子《家常红烧肉的做法》', 1, 'admin', 6, '家常红烧肉的做法', 1, '2026-06-06 16:20:30'),
+(17, 4, 'favorite', 'u1 收藏了你的帖子《云南大理三日游攻略》', 2, 'u1', 8, '云南大理三日游攻略', 1, '2026-06-06 19:25:50'),
+-- 关注通知
+(18, 1, 'follow', 'u1 关注了你', 2, 'u1', NULL, NULL, 1, '2026-06-06 11:00:00'),
+(19, 1, 'follow', 'u2 关注了你', 3, 'u2', NULL, NULL, 1, '2026-06-06 11:30:00'),
+(20, 2, 'follow', 'admin 关注了你', 1, 'admin', NULL, NULL, 1, '2026-06-06 14:00:00'),
+(21, 2, 'follow', 'u2 关注了你', 3, 'u2', NULL, NULL, 1, '2026-06-06 15:00:00'),
+(22, 1, 'follow', 'u3 关注了你', 4, 'u3', NULL, NULL, 1, '2026-06-06 16:00:00');

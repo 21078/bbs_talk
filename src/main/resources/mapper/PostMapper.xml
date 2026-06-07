@@ -19,6 +19,7 @@
         <result property="user.uid" column="uid"/>
         <result property="user.uname" column="uname"/>
         <result property="user.path" column="user_path"/>
+        <result property="user.verified" column="user_verified"/>
         <result property="favoriteCount" column="favorite_count"/>
         <result property="category" column="category"/>
         <result property="isSticky" column="is_sticky"/>
@@ -28,20 +29,20 @@
 
 
     <select id="findAllPost" resultMap="PostAndUser">
-        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,u.path as user_path,COUNT(f.fid) as favorite_count,p.category,p.is_sticky,p.prize,p.path
+        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,u.path as user_path, u.verified as user_verified,COUNT(f.fid) as favorite_count,p.category,p.is_sticky,p.prize,p.path
         FROM post p LEFT JOIN user u on p.uid = u.uid
         LEFT JOIN favorite f on p.pid = f.pid
-        GROUP BY p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,u.path,p.category,p.is_sticky,p.prize
+        GROUP BY p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,u.path,u.verified,p.category,p.is_sticky,p.prize
         ORDER BY p.is_sticky DESC, lastreplytime DESC
     </select>
 
 
     <select id="findPostById" resultMap="PostAndUser" parameterType="Long">
-        SELECT p.pid,p.ptitle,p.pbody,p.psendtime,u.uid,u.uname,u.path as user_path,COUNT(f.fid) as favorite_count,p.category,p.is_sticky,p.prize,p.path
+        SELECT p.pid,p.ptitle,p.pbody,p.psendtime,u.uid,u.uname,u.path as user_path, u.verified as user_verified,COUNT(f.fid) as favorite_count,p.category,p.is_sticky,p.prize,p.path
         FROM post p LEFT JOIN user u on p.uid = u.uid
         LEFT JOIN favorite f on p.pid = f.pid
         WHERE p.pid=#{value}
-        GROUP BY p.pid,p.ptitle,p.pbody,p.psendtime,u.uid,u.uname,u.path,p.category,p.is_sticky,p.prize,p.path
+        GROUP BY p.pid,p.ptitle,p.pbody,p.psendtime,u.uid,u.uname,u.path,u.verified,p.category,p.is_sticky,p.prize,p.path
     </select>
 
     <update id="updatePostLastReplyTime" parameterType="Post">
@@ -61,10 +62,10 @@
     </parameterMap>
 
     <select id="findPostByPage" parameterMap="StartPageAndshowPage" resultMap="PostAndUser">
-        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,u.path as user_path,COUNT(f.fid) as favorite_count,p.category,p.is_sticky,p.prize,p.path
+        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,u.path as user_path, u.verified as user_verified,COUNT(f.fid) as favorite_count,p.category,p.is_sticky,p.prize,p.path
         FROM post p LEFT JOIN user u on p.uid = u.uid
         LEFT JOIN favorite f on p.pid = f.pid
-        GROUP BY p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,u.path,p.category,p.is_sticky,p.prize
+        GROUP BY p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,u.path,u.verified,p.category,p.is_sticky,p.prize
         ORDER BY p.is_sticky DESC, lastreplytime DESC
         LIMIT #{startPage},#{showPage}
     </select>
@@ -75,11 +76,11 @@
     </select>
 
     <select id="findPostByPageAndCategory" parameterType="Map" resultMap="PostAndUser">
-        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,u.path as user_path,COUNT(f.fid) as favorite_count,p.category,p.is_sticky,p.prize,p.path
+        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,u.path as user_path, u.verified as user_verified,COUNT(f.fid) as favorite_count,p.category,p.is_sticky,p.prize,p.path
         FROM post p LEFT JOIN user u on p.uid = u.uid
         LEFT JOIN favorite f on p.pid = f.pid
         WHERE p.category = #{category}
-        GROUP BY p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,u.path,p.category,p.is_sticky,p.prize
+        GROUP BY p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,u.path,u.verified,p.category,p.is_sticky,p.prize
         ORDER BY p.is_sticky DESC, lastreplytime DESC
         LIMIT #{startPage},#{showPage}
     </select>
@@ -91,11 +92,11 @@
     </select>
 
     <select id="findPostsByUserId" resultMap="PostAndUser" parameterType="Long">
-        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,u.path as user_path,COUNT(f.fid) as favorite_count,p.category,p.is_sticky,p.prize,p.path
+        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,u.path as user_path, u.verified as user_verified,COUNT(f.fid) as favorite_count,p.category,p.is_sticky,p.prize,p.path
         FROM post p LEFT JOIN user u on p.uid = u.uid
         LEFT JOIN favorite f on p.pid = f.pid
         WHERE p.uid = #{value}
-        GROUP BY p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,u.path,p.category,p.is_sticky,p.prize
+        GROUP BY p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,u.path,u.verified,p.category,p.is_sticky,p.prize
         ORDER BY p.is_sticky DESC, psendtime DESC
     </select>
 
@@ -104,6 +105,25 @@
         SET pbody = #{pbody}, path = #{path}
         WHERE pid = #{pid} AND uid = #{user.uid}
     </update>
+
+    <select id="findPostByPageAndKeyword" parameterType="Map" resultMap="PostAndUser">
+        SELECT p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,u.path as user_path, u.verified as user_verified,COUNT(f.fid) as favorite_count,p.category,p.is_sticky,p.prize,p.path
+        FROM post p LEFT JOIN user u on p.uid = u.uid
+        LEFT JOIN favorite f on p.pid = f.pid
+        WHERE p.ptitle LIKE CONCAT('%',#{keyword},'%') OR u.uname LIKE CONCAT('%',#{keyword},'%')
+        GROUP BY p.pid,ptitle,pbody,psendtime,lastreplytime,u.uid,u.uname,u.path,u.verified,p.category,p.is_sticky,p.prize
+        ORDER BY p.is_sticky DESC, lastreplytime DESC
+        LIMIT #{startPage},#{showPage}
+    </select>
+
+    <select id="getPostCountByKeyword" parameterType="String" resultType="Integer" >
+        SELECT COUNT(1) FROM (
+            SELECT p.pid
+            FROM post p LEFT JOIN user u on p.uid = u.uid
+            WHERE p.ptitle LIKE CONCAT('%',#{keyword},'%') OR u.uname LIKE CONCAT('%',#{keyword},'%')
+            GROUP BY p.pid
+        ) AS filtered
+    </select>
 
     <update id="toggleSticky">
         UPDATE post

@@ -29,6 +29,11 @@ public interface UserService {
      */
     List<User> findAllUser();
 
+    /**
+     * 查询所有用户ID
+     */
+    List<Integer> findAllUids();
+
 
     /**
      * 禁言用户
@@ -83,4 +88,28 @@ public interface UserService {
      * @param uid 用户ID
      */
     void deleteUser(Integer uid);
+
+    /**
+     * 切换用户认证状态（管理员用）
+     *
+     * @param uid 用户ID
+     */
+    void toggleVerified(Integer uid);
+
+    /**
+     * 认证用户（设为已认证）
+     *
+     * @param uid 用户ID
+     */
+    void verifyUser(Integer uid);
+
+    /**
+     * 禁言所有非管理员用户
+     */
+    void banAllNonAdminUsers();
+
+    /**
+     * 解禁所有非管理员用户
+     */
+    void unbanAllNonAdminUsers();
 }

@@ -16,6 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 用户控制器
@@ -41,6 +43,11 @@ public class UserController {
     @ResponseBody
     @RequestMapping(value = "/register.do", method = RequestMethod.POST)
     public String register(User user, HttpSession session) {
+        // 检查是否允许注册
+        if (!HostController.allowRegistration) {
+            return "注册失败:管理员已关闭注册功能";
+        }
+
         // 验证用户名和密码长度
         if (user.getUname().length() > 16 || user.getUpwd().length() > 16 || user.getUpwd().length() < 6) {
             return "注册失败:用户名或密码长度必须小于16位";
@@ -276,6 +283,12 @@ public class UserController {
             }
         }
 
+        // 验证联系电话是否为全数字
+        if (phone != null && !phone.isEmpty() && !phone.matches("\\d+")) {
+            model.addAttribute("message", "联系电话必须为数字");
+            return "error";
+        }
+
         // 更新用户信息
         user.setPhone(phone);
         user.setCareer(career);
@@ -301,6 +314,36 @@ public class UserController {
      * @param session HTTP会话对象
      * @return 操作结果页面
      */
+    /**
+     * 获取用户个人信息接口
+     * 返回指定用户的公开信息（头像、电话、工作地址）
+     *
+     * @param uid 用户ID
+     * @return 用户信息JSON
+     */
+    @ResponseBody
+    @RequestMapping(value = "/user/profile/{uid}", method = RequestMethod.GET)
+    public Map<String, Object> getUserProfile(@PathVariable Integer uid) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            User user = userService.findUserByUid(uid);
+            if (user != null) {
+                result.put("uid", user.getUid());
+                result.put("uname", user.getUname());
+                result.put("path", user.getPath() != null ? user.getPath() : "");
+                result.put("phone", user.getPhone() != null ? user.getPhone() : "未设置");
+                result.put("career", user.getCareer() != null ? user.getCareer() : "未设置");
+                result.put("address", user.getAddress() != null ? user.getAddress() : "未设置");
+                result.put("verified", user.getVerified() != null ? user.getVerified() : 0);
+            } else {
+                result.put("error", "用户不存在");
+            }
+        } catch (Exception e) {
+            result.put("error", "获取用户信息失败");
+        }
+        return result;
+    }
+
     @PostMapping("/deleteAccount.do")
     public String deleteAccount(Model model, HttpSession session) {
         User user = (User)session.getAttribute("user");

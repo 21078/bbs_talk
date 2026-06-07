@@ -49,3 +49,105 @@ canvas {
     color: #7f8c8d;
     font-size: 12px;
 }
+
+/* 狠狠认同浮动动画 */
+.agree-float {
+    position: fixed;
+    pointer-events: none;
+    font-weight: bold;
+    font-size: 16px;
+    z-index: 99999;
+    animation: floatUp 1.5s ease-out forwards;
+}
+
+@keyframes floatUp {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-120px) scale(1.2);
+    }
+}
+
+/* 表情选择器样式 */
+.emoji-bar {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+    gap: 4px;
+}
+
+.emoji-toggle {
+    cursor: pointer;
+    padding: 4px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+    font-size: 16px;
+    line-height: 1;
+    user-select: none;
+    transition: all 0.2s;
+}
+
+.emoji-toggle:hover {
+    background: #f0f0f0;
+    border-color: #999;
+}
+
+.emoji-toggle.active {
+    background: #e8f4fd;
+    border-color: #5bc0de;
+}
+
+.emoji-panel {
+    display: none;
+    flex-wrap: wrap;
+    gap: 2px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+    margin-bottom: 5px;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.emoji-panel.show {
+    display: flex;
+}
+
+.emoji-item {
+    cursor: pointer;
+    font-size: 22px;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: background 0.15s;
+    line-height: 1.4;
+    flex-shrink: 0;
+}
+
+.emoji-item:hover {
+    background: #e8f4fd;
+    transform: scale(1.2);
+}
+
+/* 通知系统样式 */
+.notification-item:hover {
+    background: #f5f8fa;
+}
+
+.notification-item.unread {
+    background: #eef7ff;
+}
+
+.notification-item.unread:hover {
+    background: #e0f0ff;
+}
+
+/* Tab未读角标 */
+.nav-tabs .badge {
+    margin-left: 4px;
+    background: #e74c3c;
+}

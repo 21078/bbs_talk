@@ -7,7 +7,6 @@ import com.zzx.model.Post;
 import com.zzx.model.User;
 import com.zzx.service.FavoriteService;
 import com.zzx.service.PostService;
-import com.zzx.service.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -30,8 +29,7 @@ public class IndexController {
     @Autowired
     private PostService postService;
 
-    @Autowired
-    private UserService userService;
+
 
     @Autowired
     private FavoriteService favoriteService;
@@ -49,7 +47,8 @@ public class IndexController {
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String index(HttpSession session, Model model,
                         @RequestParam(value = "page", required = false) Long page,
-                        @RequestParam(value = "category", required = false) String category) {
+                        @RequestParam(value = "category", required = false) String category,
+                        @RequestParam(value = "keyword", required = false) String keyword) {
         // 创建分页参数Map
         Map<String, Long> map = new HashMap<>();
         // 设置起始页，如果page为null则从第0页开始，否则从page-1页开始
@@ -57,7 +56,10 @@ public class IndexController {
 
         // 调用服务层方法获取分页帖子数据
         Page<Post> pageResult;
-        if (category == null || category.isEmpty()) {
+        if (keyword != null && !keyword.isEmpty()) {
+            // 有关键词搜索
+            pageResult = postService.findPostByPageAndKeyword(map, keyword);
+        } else if (category == null || category.isEmpty()) {
             // 没有板块筛选，获取所有帖子
             pageResult = postService.findPostByPage(map);
         } else {
@@ -65,8 +67,9 @@ public class IndexController {
             pageResult = postService.findPostByPageAndCategory(map, category);
         }
 
-        // 将当前选择的板块传递到前端
+        // 将当前选择的板块和关键词传递到前端
         model.addAttribute("currentCategory", category);
+        model.addAttribute("keyword", keyword);
 
         // 检查当前用户是否已收藏每个帖子
         User user = (User) session.getAttribute("user");

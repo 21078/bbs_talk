@@ -95,6 +95,22 @@ public interface PostMapper {
     Integer getPostCountByCategory(String category);
 
     /**
+     * 根据关键词分页查询帖子（模糊匹配标题和用户名）
+     *
+     * @param map 查询参数，包含分页和关键词信息
+     * @return 帖子列表
+     */
+    List<Post> findPostByPageAndKeyword(Map<String, Object> map);
+
+    /**
+     * 根据关键词查询帖子数量
+     *
+     * @param keyword 关键词
+     * @return 帖子数量
+     */
+    Integer getPostCountByKeyword(String keyword);
+
+    /**
      * 切换帖子置顶状态
      *
      * @param pid 帖子ID

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <title>视频播放</title>
+    <script th:src="@{/js/jquery/2.0.0/jquery.min.js}" src="/js/jquery/2.0.0/jquery.min.js"></script>
+    <link th:href="@{/css/bootstrap/3.3.6/bootstrap.min.css}" href="/css/bootstrap/3.3.6/bootstrap.min.css"
+          rel="stylesheet"/>
+    <script th:src="@{/js/bootstrap/3.3.6/bootstrap.min.js}" src="/js/bootstrap/3.3.6/bootstrap.min.js"></script>
+    <link th:href="@{/css/tx.css}" rel="stylesheet"/>
+    <script type="text/javascript" th:src="@{/js/private.js}"></script>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script type="text/javascript" th:src="@{/js/triangle-bg.js}"></script>
+
+<div class="container">
+    <div th:replace="head::header"></div>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="panel panel-info">
+                <div class="panel-heading" style="font-size: 18px; font-weight: bolder;">
+                    <span class="glyphicon glyphicon-play-circle"></span> 视频播放
+                </div>
+                <div class="panel-body" style="padding: 0;">
+                    <video id="videoPlayer" poster="https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/music2.jpg" style="width: 100%; max-height: 420px; object-fit: contain; display: block; background: #000;">
+                        <source src="https://bbspicturebed.oss-cn-huhehaote.aliyuncs.com/post_covers/video.mp4" type="video/mp4">
+                    </video>
+                    <div style="padding: 12px 15px; display: flex; align-items: center; gap: 10px;">
+                        <button id="videoPlayBtn" onclick="toggleVideoPlay()" style="width: 40px; height: 40px; border: none; border-radius: 50%; background: #5bc0de; color: #fff; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">▶</button>
+                        <div style="flex: 1; display: flex; align-items: center; gap: 8px;">
+                            <input type="range" id="videoProgress" min="0" max="100" value="0" style="flex: 1; height: 4px; cursor: pointer;">
+                            <span id="videoTime" style="color: #999; font-size: 12px; white-space: nowrap;">0:00 / 0:00</span>
+                        </div>
+                        <div id="volumeWrapper" style="position: relative; display: flex; align-items: center;">
+                            <button id="volumeBtn" onclick="toggleVolumeSlider()" style="width: 36px; height: 36px; border: none; border-radius: 4px; background: transparent; color: #999; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">🔊</button>
+                            <div id="volumeSliderContainer" style="position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); display: none; padding-bottom: 8px;">
+                                <input type="range" id="videoVolume" min="0" max="1" step="0.05" value="0.15" style="height: 80px; width: 4px; cursor: pointer; writing-mode: vertical-lr; direction: rtl; padding: 0; margin: 0;">
+                            </div>
+                        </div>
+                        <button id="fullscreenBtn" onclick="toggleFullscreen()" style="width: 36px; height: 36px; border: none; border-radius: 4px; background: #5bc0de; color: #fff; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">⛶</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="videoPaymentModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-body" style="text-align: center; padding: 30px 20px">
+                    <p style="font-size: 16px; font-weight: bold; color: #d9534f; margin-bottom: 25px;">
+                        你需要支付播放此视频的费用（50积分）
+                    </p>
+                    <button type="button" class="btn btn-success" id="videoPayBtn" style="margin-right: 10px; min-width: 100px;">
+                        支付50积分
+                    </button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal" style="min-width: 100px;">
+                        取消
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="videoJokeModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-body" style="text-align: center; padding: 30px 20px">
+                    <p style="font-size: 16px; font-weight: bold; color: #5bc0de; margin-bottom: 25px;">
+                        没骗你，认真的
+                    </p>
+                    <button type="button" class="btn btn-success" id="videoJokeContinueBtn" style="margin-right: 10px; min-width: 100px;">
+                        继续支付
+                    </button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal" style="min-width: 100px;">
+                        取消
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 15px;">
+        <a href="/" class="btn btn-primary">返回首页</a>
+    </div>
+</div>
+
+<input type="hidden" id="userVerified" th:value="${session.user.verified}"/>
+<script>
+    var videoPlayer = document.getElementById('videoPlayer');
+    videoPlayer.volume = 0.15;
+    videoPlayer.removeAttribute('controls');
+    var videoHasBeenPlayed = false;
+    var isVideoSeeking = false;
+
+    function toggleVideoPlay() {
+        if (!videoHasBeenPlayed) {
+            $('#videoPaymentModal').modal('show');
+            return;
+        }
+        if (videoPlayer.paused) {
+            videoPlayer.play();
+        } else {
+            videoPlayer.pause();
+        }
+    }
+
+    document.getElementById('videoPayBtn').onclick = function() {
+        $('#videoPaymentModal').modal('hide');
+        $('#videoJokeModal').modal('show');
+    };
+
+    document.getElementById('videoJokeContinueBtn').onclick = function() {
+        $('#videoJokeModal').modal('hide');
+        $.post('/video/pay', function(data) {
+            if (data.success) {
+                videoHasBeenPlayed = true;
+                videoPlayer.play();
+                // 支付成功后发送认证请求
+                $.post('/video/verify', function(verifyData) {
+                    if (verifyData.success) {
+                        alert('您已认证');
+                    }
+                });
+            } else {
+                if (data.message === '未登录') {
+                    alert('未登录，请先登录');
+                    $('#loginModal').modal('show');
+                } else {
+                    alert(data.message);
+                }
+            }
+        });
+    };
+
+    videoPlayer.onplay = function() {
+        document.getElementById('videoPlayBtn').textContent = '⏸';
+    };
+
+    videoPlayer.onpause = function() {
+        document.getElementById('videoPlayBtn').textContent = '▶';
+    };
+
+    videoPlayer.ontimeupdate = function() {
+        if (isVideoSeeking) return;
+        if (videoPlayer.duration) {
+            document.getElementById('videoProgress').value = (videoPlayer.currentTime / videoPlayer.duration) * 100;
+            document.getElementById('videoTime').textContent = formatVideoTime(videoPlayer.currentTime) + ' / ' + formatVideoTime(videoPlayer.duration);
+        }
+    };
+
+    videoPlayer.onloadedmetadata = function() {
+        document.getElementById('videoTime').textContent = '0:00 / ' + formatVideoTime(videoPlayer.duration);
+    };
+
+    document.getElementById('videoProgress').oninput = function() {
+        isVideoSeeking = true;
+        if (videoPlayer.duration) {
+            videoPlayer.currentTime = (this.value / 100) * videoPlayer.duration;
+        }
+    };
+
+    document.getElementById('videoProgress').onchange = function() {
+        isVideoSeeking = false;
+    };
+
+    document.getElementById('videoVolume').oninput = function() {
+        videoPlayer.volume = this.value;
+    };
+
+    function toggleVolumeSlider() {
+        var c = document.getElementById('volumeSliderContainer');
+        c.style.display = c.style.display === 'none' ? 'block' : 'none';
+    }
+
+    document.addEventListener('click', function(e) {
+        var w = document.getElementById('volumeWrapper');
+        if (!w.contains(e.target)) {
+            document.getElementById('volumeSliderContainer').style.display = 'none';
+        }
+    });
+
+    function toggleFullscreen() {
+        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+            if (videoPlayer.requestFullscreen) {
+                videoPlayer.requestFullscreen();
+            } else if (videoPlayer.webkitRequestFullscreen) {
+                videoPlayer.webkitRequestFullscreen();
+            }
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            }
+        }
+    }
+
+    function onFullscreenChange() {
+        if (document.fullscreenElement || document.webkitFullscreenElement) {
+            videoPlayer.setAttribute('controls', 'controls');
+        } else {
+            videoPlayer.removeAttribute('controls');
+        }
+    }
+
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+
+    videoPlayer.onended = function() {
+        document.getElementById('videoPlayBtn').textContent = '▶';
+        document.getElementById('videoProgress').value = 0;
+    };
+
+    function formatVideoTime(seconds) {
+        if (isNaN(seconds)) return '0:00';
+        var m = Math.floor(seconds / 60);
+        var s = Math.floor(seconds % 60);
+        return m + ':' + (s < 10 ? '0' : '') + s;
+    }
+</script>
+</body>
+</html>

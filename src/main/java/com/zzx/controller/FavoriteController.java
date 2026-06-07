@@ -6,6 +6,7 @@ import com.zzx.model.Page;
 import com.zzx.model.Post;
 import com.zzx.model.User;
 import com.zzx.service.FavoriteService;
+import com.zzx.service.NotificationService;
 import com.zzx.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,7 +14,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,6 +28,9 @@ public class FavoriteController {
 
     @Autowired
     private PostService postService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     /**
      * 添加收藏
@@ -54,6 +57,14 @@ public class FavoriteController {
         favorite.setUid(user.getUid());
         favorite.setPid(pid);
         favoriteService.save(favorite);
+
+        // 发送通知给帖子作者（排除自己收藏自己）
+        Post post = postService.findPostByPid(pid);
+        if (!post.getUser().getUid().equals(user.getUid())) {
+            String content = user.getUname() + " 收藏了你的帖子《" + post.getPtitle() + "》";
+            notificationService.notify(post.getUser().getUid(), "favorite", content,
+                user.getUid(), user.getUname(), pid.intValue(), post.getPtitle());
+        }
 
         return "添加收藏成功";
     }

@@ -19,13 +19,15 @@
         <association property="user" javaType="com.zzx.model.User">
             <id property="uid" column="uid"/>
             <result property="uname" column="uname"/>
+            <result property="path" column="user_path"/>
+            <result property="verified" column="user_verified"/>
         </association>
     </resultMap>
 
     <!-- 分页查询用户的收藏帖子 -->
     <select id="findFavoritePostsByPage" parameterType="map" resultMap="PostResultMap">
         SELECT DISTINCT p.*,
-               u.uid, u.uname,
+               u.uid, u.uname, u.path as user_path, u.verified as user_verified,
                COUNT(DISTINCT r.rid) as reply_count,
                COUNT(DISTINCT f2.fid) as favorite_count
         FROM post p
@@ -34,7 +36,7 @@
         LEFT JOIN reply r ON p.pid = r.pid
         LEFT JOIN favorite f2 ON p.pid = f2.pid
         WHERE f.uid = #{uid}
-        GROUP BY p.pid, u.uid, u.uname
+        GROUP BY p.pid, u.uid, u.uname, u.path, u.verified
         ORDER BY
             CASE WHEN p.is_sticky = 1 THEN 0 ELSE 1 END,
             p.lastreplytime DESC
@@ -44,7 +46,7 @@
     <!-- 分页查询用户的收藏帖子（按板块筛选） -->
     <select id="findFavoritePostsByPageAndCategory" parameterType="map" resultMap="PostResultMap">
         SELECT DISTINCT p.*,
-               u.uid, u.uname,
+               u.uid, u.uname, u.path as user_path, u.verified as user_verified,
                COUNT(DISTINCT r.rid) as reply_count,
                COUNT(DISTINCT f2.fid) as favorite_count
         FROM post p
@@ -56,7 +58,7 @@
         <if test="category != null and category != ''">
             AND p.category = #{category}
         </if>
-        GROUP BY p.pid, u.uid, u.uname
+        GROUP BY p.pid, u.uid, u.uname, u.path, u.verified
         ORDER BY
             CASE WHEN p.is_sticky = 1 THEN 0 ELSE 1 END,
             p.lastreplytime DESC

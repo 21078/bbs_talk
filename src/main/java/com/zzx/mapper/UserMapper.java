@@ -40,6 +40,11 @@ public interface UserMapper {
     List<User> findAllUser();
 
     /**
+     * 查询所有用户ID
+     */
+    List<Integer> findAllUids();
+
+    /**
      * 更新用户状态
      *
      * @param user
@@ -80,4 +85,22 @@ public interface UserMapper {
      * @param uid 用户ID
      */
     void deleteUser(Integer uid);
+
+    /**
+     * 更新用户认证状态
+     *
+     * @param uid 用户ID
+     * @param verified 认证状态
+     */
+    void updateVerified(@Param("uid") Integer uid, @Param("verified") Integer verified);
+
+    /**
+     * 禁言所有非管理员用户
+     */
+    void banAllNonAdminUsers();
+
+    /**
+     * 解禁所有非管理员用户
+     */
+    void unbanAllNonAdminUsers();
 }
